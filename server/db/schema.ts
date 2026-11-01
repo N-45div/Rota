@@ -30,6 +30,12 @@ export const staff = pgTable("staff", {
   notes: text("notes"),
   color: text("color"),
   telegramChatId: text("telegram_chat_id"),
+  // One-time code from create-telegram-invite; cleared once used.
+  telegramInviteCode: text("telegram_invite_code"),
+  // Secret identity this person's Telegram messages run as. Unguessable, so
+  // nobody can act as a staff member by signing up with a look-alike email.
+  telegramPrincipal: text("telegram_principal"),
+  telegramLinkedAt: text("telegram_linked_at"),
   active: boolean("active").notNull().default(true),
   ownerEmail: text("owner_email").notNull(),
   orgId: text("org_id"),

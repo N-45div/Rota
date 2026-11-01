@@ -1,10 +1,23 @@
-import { callAction, writeClientAppState } from "@agent-native/core/client/hooks";
+import {
+  callAction,
+  writeClientAppState,
+} from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
-import { IconAlertTriangle, IconCheck, IconLock, IconPlus } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconBrandTelegram,
+  IconCheck,
+  IconLock,
+  IconPlus,
+} from "@tabler/icons-react";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { TAB_ID } from "@/lib/tab-id";
 import { cn } from "@/lib/utils";
 
@@ -18,6 +31,7 @@ import {
   type RosterShift,
 } from "./roster-types";
 import { ShiftDetails } from "./ShiftDetails";
+import { StaffDetails } from "./StaffDetails";
 import type { useRosterMutations } from "./use-roster-mutations";
 
 interface RosterBoardProps {
@@ -28,7 +42,9 @@ interface RosterBoardProps {
 export function RosterBoard({ roster, mutations }: RosterBoardProps) {
   const t = useT();
   const [dragging, setDragging] = useState<RosterShift | null>(null);
-  const [dragCover, setDragCover] = useState<Map<string, Candidate> | null>(null);
+  const [dragCover, setDragCover] = useState<Map<string, Candidate> | null>(
+    null,
+  );
   const [openShiftId, setOpenShiftId] = useState<string | null>(null);
   const [addingOn, setAddingOn] = useState<string | null>(null);
 
@@ -38,12 +54,19 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
       const key = `${shift.staffId ?? "open"}|${shift.date}`;
       map.set(key, [...(map.get(key) ?? []), shift]);
     }
-    for (const list of map.values()) list.sort((a, b) => a.start.localeCompare(b.start));
+    for (const list of map.values())
+      list.sort((a, b) => a.start.localeCompare(b.start));
     return map;
   }, [roster.shifts]);
 
   const roles = useMemo(
-    () => [...new Set([...roster.shifts.map((s) => s.role), ...roster.staff.flatMap((p) => p.roles)])].sort(),
+    () =>
+      [
+        ...new Set([
+          ...roster.shifts.map((s) => s.role),
+          ...roster.staff.flatMap((p) => p.roles),
+        ]),
+      ].sort(),
     [roster.shifts, roster.staff],
   );
 
@@ -73,7 +96,9 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
     setDragging(shift);
     setDragCover(null);
     callAction("find-cover", { shiftId: shift.id }, { method: "GET" })
-      .then((result) => setDragCover(new Map(result.candidates.map((c) => [c.staffId, c]))))
+      .then((result) =>
+        setDragCover(new Map(result.candidates.map((c) => [c.staffId, c]))),
+      )
       .catch(() => setDragCover(null));
   }
 
@@ -128,7 +153,9 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
             data-shift-id={shift.id}
             className={cn(
               "group relative flex w-full flex-col rounded-md border bg-background py-1.5 pr-1.5 pl-2.5 text-left transition-[box-shadow,opacity] hover:shadow-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-              inOpenLane ? "border-dashed border-amber-500/70 bg-amber-50/60 dark:bg-amber-950/20" : "border-border",
+              inOpenLane
+                ? "border-dashed border-amber-500/70 bg-amber-50/60 dark:bg-amber-950/20"
+                : "border-border",
               problems.length > 0 && "border-destructive/60 bg-destructive/5",
               dragging?.id === shift.id && "opacity-40",
               !shift.locked && "cursor-grab active:cursor-grabbing",
@@ -137,23 +164,40 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
             <span
               aria-hidden
               className="absolute inset-y-1 left-1 w-[3px] rounded-full"
-              style={{ background: inOpenLane ? "transparent" : (person?.color ?? "var(--border)") }}
+              style={{
+                background: inOpenLane
+                  ? "transparent"
+                  : (person?.color ?? "var(--border)"),
+              }}
             />
             <span className="flex items-center gap-1 text-xs font-medium tabular-nums">
               {shift.start}–{shift.end}
-              {shift.endsNextDay ? <sup className="text-[9px] text-muted-foreground">+1</sup> : null}
+              {shift.endsNextDay ? (
+                <sup className="text-[9px] text-muted-foreground">+1</sup>
+              ) : null}
               <span className="ml-auto flex items-center gap-0.5">
                 {problems.length > 0 ? (
-                  <IconAlertTriangle className="size-3.5 text-destructive" aria-label={t("roster.hasProblem")} />
+                  <IconAlertTriangle
+                    className="size-3.5 text-destructive"
+                    aria-label={t("roster.hasProblem")}
+                  />
                 ) : warned ? (
-                  <IconAlertTriangle className="size-3.5 text-amber-500" aria-label={t("roster.hasWarning")} />
+                  <IconAlertTriangle
+                    className="size-3.5 text-amber-500"
+                    aria-label={t("roster.hasWarning")}
+                  />
                 ) : null}
                 {shift.locked ? (
-                  <IconLock className="size-3 text-muted-foreground" aria-label={t("roster.locked")} />
+                  <IconLock
+                    className="size-3 text-muted-foreground"
+                    aria-label={t("roster.locked")}
+                  />
                 ) : null}
               </span>
             </span>
-            <span className="truncate text-[11px] text-muted-foreground capitalize">{shift.role}</span>
+            <span className="truncate text-[11px] text-muted-foreground capitalize">
+              {shift.role}
+            </span>
           </button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-auto p-3">
@@ -187,14 +231,28 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                 isToday && "bg-accent/60",
               )}
             >
-              <span className={cn("text-xs text-muted-foreground", isToday && "font-medium text-foreground")}>
+              <span
+                className={cn(
+                  "text-xs text-muted-foreground",
+                  isToday && "font-medium text-foreground",
+                )}
+              >
                 {label.weekday}
               </span>
-              <span className={cn("text-sm font-semibold tabular-nums", isToday && "text-primary")}>{label.day}</span>
+              <span
+                className={cn(
+                  "text-sm font-semibold tabular-nums",
+                  isToday && "text-primary",
+                )}
+              >
+                {label.day}
+              </span>
               <span
                 className={cn(
                   "ml-auto text-[11px] tabular-nums",
-                  total > 0 && filled === total ? "text-muted-foreground" : "text-amber-600 dark:text-amber-400",
+                  total > 0 && filled === total
+                    ? "text-muted-foreground"
+                    : "text-amber-600 dark:text-amber-400",
                 )}
               >
                 {total > 0 ? `${filled}/${total}` : ""}
@@ -219,17 +277,26 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
             className={cn(
               "flex min-h-14 flex-col gap-1.5 border-b border-l border-border p-1.5",
               date === roster.today && "bg-accent/30",
-              dragging?.date === date && dragging.staffId && "bg-amber-50/70 dark:bg-amber-950/20",
+              dragging?.date === date &&
+                dragging.staffId &&
+                "bg-amber-50/70 dark:bg-amber-950/20",
             )}
           >
-            {(byCell.get(`open|${date}`) ?? []).map((shift) => chip(shift, true))}
-            <Popover open={addingOn === date} onOpenChange={(open) => setAddingOn(open ? date : null)}>
+            {(byCell.get(`open|${date}`) ?? []).map((shift) =>
+              chip(shift, true),
+            )}
+            <Popover
+              open={addingOn === date}
+              onOpenChange={(open) => setAddingOn(open ? date : null)}
+            >
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
                   className="h-6 w-full justify-start gap-1 px-1.5 text-[11px] text-muted-foreground opacity-60 hover:opacity-100 focus-visible:opacity-100"
-                  aria-label={t("roster.addShiftOn", { day: dayLabel(date).long })}
+                  aria-label={t("roster.addShiftOn", {
+                    day: dayLabel(date).long,
+                  })}
                 >
                   <IconPlus className="size-3" />
                   {t("roster.addShort")}
@@ -256,53 +323,93 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
           const full = person.weekHours >= person.maxHours;
           return (
             <div key={person.id} className="contents">
-              <div
-                className={cn(
-                  "sticky left-0 z-10 flex items-center gap-2.5 border-b border-border bg-card px-3 py-2 transition-colors",
-                  state === "eligible" && "bg-emerald-50 dark:bg-emerald-950/30",
-                  state === "blocked" && "opacity-55",
-                  !person.active && "opacity-50",
-                )}
-              >
-                <span
-                  className="flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
-                  style={{ background: person.color ?? "var(--muted-foreground)" }}
-                  aria-hidden
-                >
-                  {initials(person.name)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1">
-                    <span className="truncate text-sm font-medium">{person.name}</span>
-                    {state === "eligible" ? <IconCheck className="size-3.5 shrink-0 text-emerald-600" /> : null}
-                  </div>
-                  {/* While dragging, the reason replaces the skills line so row heights stay put. */}
-                  {state === "blocked" && candidate ? (
-                    <p
-                      className="truncate text-[11px] text-muted-foreground"
-                      title={candidate.violations.map((v) => v.message).join(" ")}
-                    >
-                      {candidate.violations.find((v) => v.severity !== "warn")?.message}
-                    </p>
-                  ) : (
-                    <p className="truncate text-[11px] text-muted-foreground capitalize">{person.roles.join(" · ")}</p>
-                  )}
-                  <div
-                    className="mt-1 flex items-center gap-1.5"
-                    title={t("roster.hoursOfMax", { hours: person.weekHours, max: person.maxHours })}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    aria-label={t("roster.staffDetails", { name: person.name })}
+                    className={cn(
+                      "sticky left-0 z-10 flex items-center gap-2.5 border-b border-border bg-card px-3 py-2 text-left transition-colors hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset",
+                      state === "eligible" &&
+                        "bg-emerald-50 dark:bg-emerald-950/30",
+                      state === "blocked" && "opacity-55",
+                      !person.active && "opacity-50",
+                    )}
                   >
-                    <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={cn("h-full rounded-full", full ? "bg-amber-500" : "bg-primary/70")}
-                        style={{ width: `${pct}%` }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-muted-foreground tabular-nums">
-                      {person.weekHours}/{person.maxHours}h
+                    <span
+                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                      style={{
+                        background: person.color ?? "var(--muted-foreground)",
+                      }}
+                      aria-hidden
+                    >
+                      {initials(person.name)}
                     </span>
-                  </div>
-                </div>
-              </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1">
+                        <span className="truncate text-sm font-medium">
+                          {person.name}
+                        </span>
+                        {person.hasTelegram ? (
+                          <IconBrandTelegram
+                            className="size-3.5 shrink-0 text-sky-500"
+                            aria-label={t("roster.telegramConnected")}
+                          />
+                        ) : null}
+                        {state === "eligible" ? (
+                          <IconCheck className="size-3.5 shrink-0 text-emerald-600" />
+                        ) : null}
+                      </div>
+                      {/* While dragging, the reason replaces the skills line so row heights stay put. */}
+                      {state === "blocked" && candidate ? (
+                        <p
+                          className="truncate text-[11px] text-muted-foreground"
+                          title={candidate.violations
+                            .map((v) => v.message)
+                            .join(" ")}
+                        >
+                          {
+                            candidate.violations.find(
+                              (v) => v.severity !== "warn",
+                            )?.message
+                          }
+                        </p>
+                      ) : (
+                        <p className="truncate text-[11px] text-muted-foreground capitalize">
+                          {person.roles.join(" · ")}
+                        </p>
+                      )}
+                      <div
+                        className="mt-1 flex items-center gap-1.5"
+                        title={t("roster.hoursOfMax", {
+                          hours: person.weekHours,
+                          max: person.maxHours,
+                        })}
+                      >
+                        <div className="h-1 flex-1 overflow-hidden rounded-full bg-muted">
+                          <div
+                            className={cn(
+                              "h-full rounded-full",
+                              full ? "bg-amber-500" : "bg-primary/70",
+                            )}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">
+                          {person.weekHours}/{person.maxHours}h
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="start"
+                  side="right"
+                  className="w-auto p-3"
+                >
+                  <StaffDetails person={person} />
+                </PopoverContent>
+              </Popover>
               {roster.days.map((date) => {
                 const droppable = dragging?.date === date && state !== "self";
                 return (
@@ -312,11 +419,15 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                     className={cn(
                       "flex min-h-14 flex-col gap-1.5 border-b border-l border-border p-1.5 transition-colors",
                       date === roster.today && "bg-accent/30",
-                      droppable && state === "eligible" && "bg-emerald-50 dark:bg-emerald-950/30",
+                      droppable &&
+                        state === "eligible" &&
+                        "bg-emerald-50 dark:bg-emerald-950/30",
                       droppable && state === "blocked" && "bg-muted/60",
                     )}
                   >
-                    {(byCell.get(`${person.id}|${date}`) ?? []).map((shift) => chip(shift, false))}
+                    {(byCell.get(`${person.id}|${date}`) ?? []).map((shift) =>
+                      chip(shift, false),
+                    )}
                   </div>
                 );
               })}

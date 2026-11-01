@@ -77,6 +77,16 @@ CREATE INDEX IF NOT EXISTS shifts_team_starts_idx ON shifts (team_id, starts_at)
 CREATE INDEX IF NOT EXISTS shifts_staff_starts_idx ON shifts (staff_id, starts_at);
 CREATE INDEX IF NOT EXISTS availability_team_staff_idx ON availability (team_id, staff_id)`,
     },
+    {
+      version: 2,
+      name: "staff-telegram-link",
+      sql: `ALTER TABLE staff ADD COLUMN IF NOT EXISTS telegram_invite_code TEXT;
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS telegram_principal TEXT;
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS telegram_linked_at TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS staff_telegram_invite_idx ON staff (telegram_invite_code) WHERE telegram_invite_code IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS staff_telegram_principal_idx ON staff (telegram_principal) WHERE telegram_principal IS NOT NULL;
+CREATE INDEX IF NOT EXISTS staff_telegram_chat_idx ON staff (telegram_chat_id)`,
+    },
   ],
   { table: "rota_app_migrations" },
 );

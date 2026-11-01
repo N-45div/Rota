@@ -50,5 +50,7 @@ Weekly staff rosters with an agent shift manager (plan, timeline, and post-hacka
 | assign-shifts | Batch draft; skips invalid ones |
 | create-shifts / update-shift / delete-shift | Edit shifts; `locked` pins |
 | add-availability / remove-availability | Unavailability rules |
-| add-staff / update-staff | Team members |
+| add-staff / update-staff / create-telegram-invite | Team members, Telegram invite |
 | seed-demo-team | Demo café |
+
+Telegram (`server/plugins/integrations.ts`): staff link via `/start <code>` and run as a secret staff identity with no team access, limited to `my-shifts` and `report-unavailable`. Setup steps: `docs/ROADMAP.md`.

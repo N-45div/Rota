@@ -30,8 +30,17 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Shared actions (get-roster, assign-shift(s), find-cover, shifts, staff, availability, seed) | Done, HTTP smoke test in `scripts/api-smoke.cjs` |
 | Roster board: grid, open lane, popover with ranked cover, drag-and-drop with live eligibility | Done, browser-tested |
 | Agent instructions, context (team, week, selected shift), roster suggestions | Done; needs a real LLM run |
-| Telegram: staff invite links, staff identity, staff actions | In progress (Nov 1) |
+| Telegram: staff invite links, staff identity, staff actions (`my-shifts`, `report-unavailable`), invite UI | Done, tested with simulated webhooks; needs a real bot token |
 | Deploy (host + Postgres) and Telegram webhook | Needs the owner's accounts |
+
+## Telegram setup (once per deployment)
+
+1. In Telegram, message @BotFather, send `/newbot`, copy the token and the bot username.
+2. Set env vars: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any long random string), `TELEGRAM_BOT_USERNAME`.
+3. Signed in as the team admin, `POST /_agent-native/integrations/telegram/enable`, then `POST /_agent-native/integrations/telegram/setup` to register the webhook.
+4. On the board, click a staff member → Connect Telegram → send them the link.
+
+Local testing without a bot: `scripts/telegram-smoke.cjs` posts fake Telegram updates.
 
 ## Timeline to submission
 
