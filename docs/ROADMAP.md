@@ -7,6 +7,11 @@ Telegram while the manager watches a live board.
 Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 11:59 PM PT** (Nov 10 07:59 UTC). We submit by **noon PT** on Nov 9.
 
+## Working agreements
+
+- Every commit is authored and committed as `N-45div <ndivij2004@gmail.com>`. No co-author lines or tool/session trailers in commit messages.
+- Default branch is `main` on github.com/N-45div/rota. Vercel (Pro, team `n45divs-projects`) deploys from it.
+
 ## Hackathon facts (from builder.io/hackathon and /rules)
 
 - Must be built with Agent-Native, original work from Oct 27, 2026. List the
