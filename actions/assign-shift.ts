@@ -19,7 +19,9 @@ export default defineAction({
       .describe("Allow overridable rules (skill, availability, max hours). Only when the user asks."),
   }),
   changeResource: teamChange,
-  run: async (args) => {
+  run: async (input) => {
+    // Treat "null" and "" as unassign too; CLI flags and some callers send strings.
+    const args = { ...input, staffId: input.staffId === "null" || input.staffId === "" ? null : input.staffId };
     const teamId = await teamIdForShift(getDb(), args.shiftId);
     await assertAccess("team", teamId, "editor");
     return getDb().transaction(async (tx) => {

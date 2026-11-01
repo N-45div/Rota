@@ -10,7 +10,7 @@ import {
   type RuleShift,
   type RuleStaff,
 } from "./rules.js";
-import { addDays, hoursBetween, localParts } from "./time.js";
+import { addDays, hoursBetween, localParts, mondayOf, weekBounds } from "./time.js";
 
 type Db = ReturnType<typeof getDb>;
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
@@ -89,7 +89,8 @@ export interface RosterContext {
 
 /**
  * Staff, availability, and scheduled shifts around [from, to). The window is
- * padded by a day on each side so rest-gap checks see neighbouring shifts.
+ * widened to whole local weeks (so weekly-hour totals are complete) plus a
+ * day on each side (so rest-gap checks see neighbouring shifts).
  */
 export async function loadRosterContext(
   db: Executor,
@@ -98,8 +99,11 @@ export async function loadRosterContext(
   to: string,
 ): Promise<RosterContext> {
   const { staff, shifts, availability } = schema;
-  const paddedFrom = new Date(Date.parse(from) - 86_400_000 * 2).toISOString();
-  const paddedTo = new Date(Date.parse(to) + 86_400_000 * 2).toISOString();
+  const tz = team.timezone;
+  const firstWeek = weekBounds(mondayOf(localParts(from, tz).date), tz);
+  const lastWeek = weekBounds(mondayOf(localParts(to, tz).date), tz);
+  const paddedFrom = new Date(Date.parse(firstWeek.from) - 86_400_000).toISOString();
+  const paddedTo = new Date(Date.parse(lastWeek.to) + 86_400_000).toISOString();
 
   const [staffRows, shiftRows, availabilityRows] = await Promise.all([
     db
