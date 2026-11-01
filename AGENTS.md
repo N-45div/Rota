@@ -34,7 +34,7 @@ Before building common workspace or agent UI, read `agent-native-toolkit`; for s
 
 ## Rota
 
-Weekly staff rosters with an agent shift manager. `/roster` picks a team; `/roster/:teamId?week=YYYY-MM-DD` is the board (staff rows × Mon–Sun, plus an open-shifts lane). Sign-in lands on `/roster`.
+Weekly staff rosters with an agent shift manager (plan, timeline, and post-hackathon roadmap: `docs/ROADMAP.md`). `/roster` picks a team; `/roster/:teamId?week=YYYY-MM-DD` is the board (staff rows × Mon–Sun, plus an open-shifts lane). Sign-in lands on `/roster`.
 
 - Teams are org-visible with an active org, else private. Staff, shifts, and availability belong to a team and inherit its access.
 - Every assignment goes through the rule checker (`server/lib/rules.ts`): `block` (double-booked, inactive) never passes; `override` (missing skill, unavailable, over max hours) needs `override=true`, which only the user may request; `warn` (rest under 10h) passes. Rejections are 409 `rule_violation` or `shift_locked`; report the reason.
