@@ -31,3 +31,24 @@ Use `adding-a-feature` for functional parity and `frontend-design` for a user-fa
 Before building common workspace or agent UI, read `agent-native-toolkit`; for supported customization, read `customizing-agent-native`.
 
 - Guarded verification: run `pnpm agent-native:doctor`; fix findings before done.
+
+## Rota
+
+Weekly staff rosters with an agent shift manager. `/roster` picks a team; `/roster/:teamId?week=YYYY-MM-DD` is the board (staff rows × Mon–Sun, plus an open-shifts lane). Sign-in lands on `/roster`.
+
+- Teams are org-visible with an active org, else private. Staff, shifts, and availability belong to a team and inherit its access.
+- Every assignment goes through the rule checker (`server/lib/rules.ts`): `block` (double-booked, inactive) never passes; `override` (missing skill, unavailable, over max hours) needs `override=true`, which only the user may request; `warn` (rest under 10h) passes. Rejections are 409 `rule_violation` or `shift_locked`; report the reason.
+- Shift writes lock the team row in a transaction so concurrent assignments can't double-book.
+- Dates YYYY-MM-DD and times HH:MM in the team time zone; storage is UTC ISO. End ≤ start means the next day.
+- `navigation` adds `teamId` and `week`; `selection:<tab>` holds `{kind:"shift", id}`, surfaced by `view-screen` as `selectedShift`.
+
+| Action | Purpose |
+|---|---|
+| get-roster | Week view: staff, shifts, issues |
+| find-cover | Rank who can take a shift |
+| assign-shift | One assignment (null unassigns) |
+| assign-shifts | Batch draft; skips invalid ones |
+| create-shifts / update-shift / delete-shift | Edit shifts; `locked` pins |
+| add-availability / remove-availability | Unavailability rules |
+| add-staff / update-staff | Team members |
+| seed-demo-team | Demo café |

@@ -3,7 +3,7 @@ import { useT } from "@agent-native/core/client/i18n";
 import { focusAgentChat } from "@agent-native/toolkit/app/chat";
 import { AgentSidebar } from "@agent-native/toolkit/app/chat";
 import { type ReactNode } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 import { chatThreadPath } from "@/lib/chat-paths";
 import { TAB_ID } from "@/lib/tab-id";
@@ -22,6 +22,7 @@ export function AgentInspector({
 }: AgentInspectorProps) {
   const navigate = useNavigate();
   const t = useT();
+  const onRoster = useLocation().pathname.startsWith("/roster");
 
   function openAskAgentFullscreen(threadId?: string) {
     focusAgentChat();
@@ -37,13 +38,17 @@ export function AgentInspector({
       browserTabId={TAB_ID}
       openOnChatRunning={chatHomeHandoffActive}
       onFullscreenRequest={openAskAgentFullscreen}
-      emptyStateText={t("chat.inspectEmptyState")}
+      emptyStateText={onRoster ? t("roster.agentEmptyState") : t("chat.inspectEmptyState")}
       agentPageHref="/settings/agent"
-      suggestions={[
-        t("chat.inspectSuggestionCapabilities"),
-        t("chat.inspectSuggestionHello"),
-        t("chat.inspectSuggestionAction"),
-      ]}
+      suggestions={
+        onRoster
+          ? [t("roster.suggestDraft"), t("roster.suggestCallout"), t("roster.suggestRule")]
+          : [
+              t("chat.inspectSuggestionCapabilities"),
+              t("chat.inspectSuggestionHello"),
+              t("chat.inspectSuggestionAction"),
+            ]
+      }
     >
       {children}
     </AgentSidebar>

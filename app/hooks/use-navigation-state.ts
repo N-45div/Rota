@@ -18,13 +18,18 @@ export interface NavigationState {
   path?: string;
   publicPath?: string;
   threadId?: string;
+  teamId?: string;
+  week?: string;
 }
 
 export function useNavigationState() {
   useAgentRouteState<NavigationState>({
     browserTabId: TAB_ID,
     requestSource: TAB_ID,
-    getNavigationState: ({ pathname }) => navigationStateForPath(pathname),
+    getNavigationState: ({ pathname, searchParams }) => ({
+      ...navigationStateForPath(pathname),
+      ...rosterState(pathname, searchParams),
+    }),
     getCommandPath: commandPathForNavigation,
   });
 }
@@ -72,7 +77,20 @@ export function navigationStateForPath(pathname: string): NavigationState {
   };
 }
 
+function rosterState(
+  pathname: string,
+  searchParams: URLSearchParams,
+): Pick<NavigationState, "teamId" | "week"> {
+  const teamId = pathname.match(/^\/roster\/([^/]+)/)?.[1];
+  const week = searchParams.get("week");
+  return {
+    ...(teamId ? { teamId: decodeURIComponent(teamId) } : {}),
+    ...(teamId && week ? { week } : {}),
+  };
+}
+
 function viewForPath(pathname: string): string {
+  if (pathname.startsWith("/roster")) return "roster";
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
   if (pathname.startsWith("/database")) return "database";
@@ -88,6 +106,8 @@ function viewForPath(pathname: string): string {
 
 function pathForView(view?: string): string {
   switch (view) {
+    case "roster":
+      return "/roster";
     case "chat":
     case "ask":
       return NEW_CHAT_PATH;
