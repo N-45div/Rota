@@ -2,5 +2,5 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "pnpm install --frozen-lockfile",
-  "buildCommand": "NITRO_PRESET=vercel pnpm build && if [ \"$VERCEL_ENV\" = \"production\" ]; then pnpm migrate:production; fi"
+  "buildCommand": "bash scripts/vercel-build.sh"
 }
