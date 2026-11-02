@@ -52,23 +52,25 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 
 Local testing without a bot: `scripts/telegram-smoke.cjs` posts fake Telegram updates.
 
-## Timeline to submission
+## Timeline to submission (updated Nov 2: plan runs to Nov 12)
 
 | Day | Work |
 | --- | --- |
-| **Sun Nov 1** | Telegram foundation: staff invite links (`/start <code>`), each linked staff member runs as their own limited identity, staff actions (`my-shifts`, `report-unavailable`). This roadmap. |
-| **Mon Nov 2** | Deploy (host + Neon Postgres), set LLM key, create the bot with BotFather, register the webhook. First real agent run: "draft next week". Fix whatever it gets wrong. |
-| **Tue Nov 3** | **Office hours 8:30 AM PT**: show board + agent drafting. Then the call-out flow: staff texts "sick tomorrow" → shift goes open on the board → agent offers it to the best eligible people on Telegram → first "yes" gets it → manager notified with undo. |
+| **Mon Nov 2** | Plan update. Call-out flow backend: cover offers sent on Telegram, YES/NO replies, first yes gets the shift, others told it's covered. Deploy as soon as the Neon database is connected. |
+| **Tue Nov 3** | **Office hours 8:30 AM PT**: show the live build. Call-out flow on the real bot; offer status on the board. First real agent runs ("draft next week") and fixes. |
 | **Wed Nov 4** | Publish the week to everyone on Telegram. Automations: Friday "draft next week", night-before shift reminders. |
 | **Thu Nov 5** | **Office hours #2.** Shift swaps between staff (both agree, rules checked, manager approves). Manager setting: auto-approve vs ask. |
-| **Fri Nov 6** | Polish: agent presence and recent-edit highlights on the board, phone-width check, empty/error states, README. |
-| **Sat Nov 7** | Bug bash, rehearse the demo script, **record the Clips demo**. |
-| **Sun Nov 8** | Buffer. Re-record if needed. Write the submission description. |
-| **Mon Nov 9** | **Submit by noon PT** and confirm receipt. |
+| **Fri Nov 6** | Agent presence and an activity feed on the board ("what the agent did"), recent-edit highlights, phone-width pass. |
+| **Sat Nov 7** | Wow feature: set up a team from a photo of a paper rota or a staff CSV. |
+| **Sun Nov 8** | Real-device test with friends on Telegram; fix everything found. Record a first Clips demo. |
+| **Mon Nov 9** | **Safety submission by noon PT** (the official site still says Nov 9). |
+| **Tue Nov 10** | Polish, README, final demo script. |
+| **Wed Nov 11** | Record the final Clips demo. |
+| **Thu Nov 12** | Final submission update and buffer. |
 
-Cut list if behind (in this order): swaps, night-before reminders, publish
-week, presence polish. The call-out flow and drafting are the demo; never cut
-those.
+Cut list if behind (in this order): photo/CSV import, swaps, night-before
+reminders, publish week, presence polish. The call-out flow and drafting are
+the demo; never cut those.
 
 ## Demo script (about 2.5 minutes)
 
