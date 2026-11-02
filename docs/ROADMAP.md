@@ -7,6 +7,11 @@ Telegram while the manager watches a live board.
 Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 11:59 PM PT** (Nov 10 07:59 UTC). We submit by **noon PT** on Nov 9.
 
+> Deadline note (Nov 2): we heard the hackathon may be extended to Nov 13, but
+> the official site and rules (checked Nov 2) still say Nov 9, 11:59 PM PT, and
+> list Nov 13 as the winner announcement date. Keep submitting by Nov 9 unless
+> Builder confirms the extension in writing; then use the extra days for polish.
+
 ## Working agreements
 
 - Every commit is authored and committed as `N-45div <ndivij2004@gmail.com>`. No co-author lines or tool/session trailers in commit messages.
