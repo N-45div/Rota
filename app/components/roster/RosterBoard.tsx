@@ -138,6 +138,8 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
     const person = roster.staff.find((p) => p.id === shift.staffId);
     const problems = blockingIssues(shift.issues);
     const warned = shift.issues.length > problems.length;
+    const asking = shift.staffId ? 0 : shift.offers.filter((offer) => offer.status === "pending").length;
+    const viaTelegram = Boolean(shift.staffId) && shift.offers.some((offer) => offer.status === "accepted");
     return (
       <Popover
         key={shift.id}
@@ -195,8 +197,16 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                 ) : null}
               </span>
             </span>
-            <span className="truncate text-[11px] text-muted-foreground capitalize">
-              {shift.role}
+            <span className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground">
+              <span className="truncate capitalize">{shift.role}</span>
+              {asking > 0 ? (
+                <span className="flex shrink-0 items-center gap-0.5 text-sky-600 dark:text-sky-400">
+                  <IconBrandTelegram className="size-3" aria-hidden />
+                  {t("roster.askingCount", { count: asking })}
+                </span>
+              ) : viaTelegram ? (
+                <IconBrandTelegram className="size-3 shrink-0 text-sky-500" aria-label={t("roster.coveredOnTelegram")} />
+              ) : null}
             </span>
           </button>
         </PopoverTrigger>

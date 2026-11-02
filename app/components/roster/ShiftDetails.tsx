@@ -1,8 +1,9 @@
 import { sendToAgentChat } from "@agent-native/core/client/agent-chat";
-import { useActionQuery } from "@agent-native/core/client/hooks";
+import { actionErrorMessage, useActionMutation, useActionQuery } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
 import {
   IconAlertTriangle,
+  IconBrandTelegram,
   IconLock,
   IconLockOpen,
   IconSparkles,
@@ -10,6 +11,7 @@ import {
   IconUserMinus,
 } from "@tabler/icons-react";
 import { useState } from "react";
+import { toast } from "sonner";
 
 import {
   AlertDialog,
@@ -43,6 +45,16 @@ export function ShiftDetails({ shift, staff, mutations, onDone }: ShiftDetailsPr
   const when = `${dayLabel(shift.date).long} · ${shift.start}–${shift.end}${shift.endsNextDay ? " +1" : ""}`;
   const problems = blockingIssues(shift.issues);
   const warnings = shift.issues.filter((issue) => issue.severity === "warn");
+  const offerShift = useActionMutation("offer-shift", {
+    onSuccess: (result) => toast.success(result.summary),
+    onError: (error) => toast.error(actionErrorMessage(error) ?? t("roster.offerFailed")),
+  });
+  const offerStatus: Record<string, string> = {
+    pending: t("roster.offerPending"),
+    accepted: t("roster.offerAccepted"),
+    declined: t("roster.offerDeclined"),
+    closed: t("roster.offerClosed"),
+  };
 
   function assign(staffId: string | null, override = false) {
     mutations.assign.mutate({ shiftId: shift.id, staffId, override });
@@ -102,6 +114,33 @@ export function ShiftDetails({ shift, staff, mutations, onDone }: ShiftDetailsPr
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {shift.offers.length > 0 ? (
+        <div>
+          <p className="mb-1 flex items-center gap-1 text-xs font-medium text-muted-foreground">
+            <IconBrandTelegram className="size-3.5 text-sky-500" />
+            {t("roster.onTelegram")}
+          </p>
+          <ul className="space-y-0.5 text-xs">
+            {shift.offers.map((offer, index) => (
+              <li key={`${offer.staffName}-${index}`} className="flex justify-between gap-2">
+                <span>{offer.staffName}</span>
+                <span
+                  className={cn(
+                    "text-muted-foreground",
+                    offer.status === "accepted" && "font-medium text-emerald-600",
+                    offer.delivery === "failed" && offer.status === "pending" && "text-destructive",
+                  )}
+                >
+                  {offer.delivery === "failed" && offer.status === "pending"
+                    ? t("roster.offerNotDelivered")
+                    : offerStatus[offer.status]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       ) : null}
 
       <div>
@@ -183,6 +222,18 @@ export function ShiftDetails({ shift, staff, mutations, onDone }: ShiftDetailsPr
           {shift.locked ? <IconLockOpen className="size-3.5" /> : <IconLock className="size-3.5" />}
           {shift.locked ? t("roster.unlock") : t("roster.lock")}
         </Button>
+        {!shift.staffId && !shift.locked ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-8 gap-1.5 px-2 text-xs"
+            disabled={offerShift.isPending}
+            onClick={() => offerShift.mutate({ shiftId: shift.id })}
+          >
+            <IconBrandTelegram className="size-3.5 text-sky-500" />
+            {t("roster.askOnTelegram")}
+          </Button>
+        ) : null}
         <Button variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs" onClick={askAgent}>
           <IconSparkles className="size-3.5" />
           {t("roster.askAgent")}

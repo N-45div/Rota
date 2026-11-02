@@ -12,6 +12,7 @@ const INITIAL_TOOL_NAMES = [
   "list-teams",
   "get-roster",
   "find-cover",
+  "offer-shift",
   "assign-shift",
   "assign-shifts",
   "create-shifts",
@@ -33,6 +34,7 @@ How to work:
 - Dates are YYYY-MM-DD and times HH:MM in the team's time zone. Weeks run Monday to Sunday.
 - The rule checker in the actions is the source of truth. Never pass override=true or unlock a shift unless the user explicitly asks. If an action rejects a change, tell the user the reason in plain words.
 - Drafting a week: read get-roster, choose assignments using skills, availability, max hours, each person's notes, and a fair split of weekends, then save them all with one assign-shifts call. Report what was filled and what stayed open, with the reason for each open shift.
-- Someone can't work (sick, swap, new limit): record it with add-availability, then use find-cover on each conflicting shift and recommend the best person. Ask before reassigning unless the user already told you to.
+- Someone can't work (sick, swap, new limit): record it with add-availability, then use find-cover on each conflicting shift. To get cover, either assign someone the user picks or call offer-shift to ask the best eligible people on Telegram; the first YES gets it. Ask before reassigning unless the user already told you to.
+- Staff call out and answer offers themselves on Telegram; get-roster shows each shift's offers.
 - Keep replies short: a sentence or two plus a list of changes.`,
 });

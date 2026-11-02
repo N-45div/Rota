@@ -41,7 +41,8 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Roster board: grid, open lane, popover with ranked cover, drag-and-drop with live eligibility | Done, browser-tested |
 | Agent instructions, context (team, week, selected shift), roster suggestions | Done; needs a real LLM run |
 | Telegram: staff invite links, staff identity, staff actions (`my-shifts`, `report-unavailable`), invite UI | Done, tested with simulated webhooks; needs a real bot token |
-| Deploy (host + Postgres) and Telegram webhook | Needs the owner's accounts |
+| Call-out flow: sick report opens the shift, best 3 eligible asked on Telegram, YES/NO (instant, no model), first yes wins, next round on all-no, board shows "asking N" | Done, `scripts/callout-smoke.cjs` |
+| Deploy: Vercel project `rota` linked to GitHub, secrets set | Waiting on the Neon database (Vercel → Storage) and the API/bot keys |
 
 ## Telegram setup (once per deployment)
 

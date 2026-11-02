@@ -3,6 +3,7 @@ import { and, eq, gt, lt } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
+import { createOffers, deliver, type OfferRound } from "../server/lib/cover.js";
 import { presentShift } from "../server/lib/roster.js";
 import { checkAssignment, describeRule, type RuleAvailability } from "../server/lib/rules.js";
 import { requireStaffCaller } from "../server/lib/telegram.js";
@@ -11,7 +12,7 @@ import { addDays, DATE_RE, parseHhMm, TIME_RE, todayIn, zonedToUtcIso } from "..
 // guard:allow-resource-action-access — authorized by the caller's own staff identity (requireStaffCaller), which only reaches that person's shifts; staff have no team access by design.
 export default defineAction({
   description:
-    "Staff only (Telegram): record that the caller can't work on a date (sick, emergency, appointment). Their shifts that clash become open on the manager's board so cover can be found. Confirm the date with them first; use my-shifts for today's date.",
+    "Staff only (Telegram): record that the caller can't work on a date (sick, emergency, appointment). Their shifts that clash become open on the manager's board, and the best eligible teammates are asked on Telegram to cover. Confirm the date with them first; use my-shifts for today's date.",
   schema: z.object({
     date: z.string().regex(DATE_RE).describe("The day they can't work, YYYY-MM-DD in the team's time zone"),
     startTime: z.string().regex(TIME_RE).optional().describe("Only from this time, HH:MM; omit for the whole day"),
@@ -35,7 +36,7 @@ export default defineAction({
     }
 
     const { teams, shifts, availability } = schema;
-    return getDb().transaction(async (tx) => {
+    const outcome = await getDb().transaction(async (tx) => {
       // Same team-row lock as the manager's shift writes, so a cover
       // assignment and a call-out can't interleave.
       const [team] = await tx
@@ -95,17 +96,42 @@ export default defineAction({
         opened.push(presentShift({ ...shift, staffId: null, note }, tz));
       }
 
+      // Ask the best eligible teammates on Telegram, inside the same lock.
+      const rounds: OfferRound[] = [];
+      for (const shift of opened) {
+        const round = await createOffers(tx, team.id, shift.id);
+        if (round) rounds.push(round);
+      }
+
       return {
         teamId: team.id,
         name: me.staffName,
         recorded: describeRule(rule),
         opened,
         pinnedForManager: pinned,
-        summary:
-          opened.length + pinned.length === 0
-            ? "Noted. They had no shifts at that time."
-            : `Opened ${opened.length} shift(s) for cover${pinned.length ? `; ${pinned.length} pinned shift(s) left for the manager` : ""}.`,
+        rounds,
       };
     });
+
+    // Send after the transaction commits.
+    await deliver(outcome.rounds.flatMap((round) => round.messages));
+    const askedNames = [...new Set(outcome.rounds.flatMap((round) => round.offeredTo))];
+    const offline = [...new Set(outcome.rounds.flatMap((round) => round.notOnTelegram))];
+    const { rounds: _rounds, ...result } = outcome;
+    const cover = askedNames.length
+      ? ` and asked ${askedNames.join(", ")} on Telegram`
+      : offline.length
+        ? `; ${offline.join(", ")} could cover but aren't on Telegram, so the manager will arrange it`
+        : "; nobody else is free and qualified, so the manager will arrange cover";
+    return {
+      ...result,
+      askedToCover: askedNames,
+      summary:
+        result.opened.length + result.pinnedForManager.length === 0
+          ? "Noted. They had no shifts at that time."
+          : `Opened ${result.opened.length} shift(s) for cover${result.opened.length ? cover : ""}${
+              result.pinnedForManager.length ? `; ${result.pinnedForManager.length} pinned shift(s) left for the manager` : ""
+            }.`,
+    };
   },
 });

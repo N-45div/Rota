@@ -91,3 +91,23 @@ export const availability = pgTable("availability", {
     .notNull()
     .default(sql`now()`),
 });
+
+// A shift offered to one person on Telegram after a call-out. The first
+// "yes" that still passes the rules gets the shift; the rest are closed.
+export const coverOffers = pgTable("cover_offers", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id").notNull(),
+  shiftId: text("shift_id").notNull(),
+  staffId: text("staff_id").notNull(),
+  status: text("status", { enum: ["pending", "accepted", "declined", "closed"] })
+    .notNull()
+    .default("pending"),
+  // Whether the Telegram message went out: pending, sent, or failed.
+  delivery: text("delivery").notNull().default("pending"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()`),
+  respondedAt: text("responded_at"),
+  ownerEmail: text("owner_email").notNull(),
+  orgId: text("org_id"),
+});

@@ -87,6 +87,24 @@ CREATE UNIQUE INDEX IF NOT EXISTS staff_telegram_invite_idx ON staff (telegram_i
 CREATE UNIQUE INDEX IF NOT EXISTS staff_telegram_principal_idx ON staff (telegram_principal) WHERE telegram_principal IS NOT NULL;
 CREATE INDEX IF NOT EXISTS staff_telegram_chat_idx ON staff (telegram_chat_id)`,
     },
+    {
+      version: 3,
+      name: "cover-offers",
+      sql: `CREATE TABLE IF NOT EXISTS cover_offers (
+  id TEXT PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams(id),
+  shift_id TEXT NOT NULL REFERENCES shifts(id),
+  staff_id TEXT NOT NULL REFERENCES staff(id),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'closed')),
+  delivery TEXT NOT NULL DEFAULT 'pending' CHECK (delivery IN ('pending', 'sent', 'failed')),
+  created_at TEXT NOT NULL DEFAULT (now()),
+  responded_at TEXT,
+  owner_email TEXT NOT NULL,
+  org_id TEXT
+);
+CREATE INDEX IF NOT EXISTS cover_offers_shift_idx ON cover_offers (shift_id, status);
+CREATE INDEX IF NOT EXISTS cover_offers_staff_idx ON cover_offers (staff_id, status, created_at)`,
+    },
   ],
   { table: "rota_app_migrations" },
 );

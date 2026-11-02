@@ -8,9 +8,14 @@ import {
 } from "@agent-native/core/server";
 
 import actionsRegistry from "../../.generated/actions-registry.js";
+import { deliver, respondToOffer } from "../lib/cover.js";
 import { findStaffByChat, linkTelegram } from "../lib/telegram.js";
 
-const STAFF_TOOLS = ["my-shifts", "report-unavailable"] as const;
+const STAFF_TOOLS = ["my-shifts", "report-unavailable", "respond-to-offer"] as const;
+
+// Clear one-word answers to a shift offer skip the model entirely.
+const YES = /^(y|yes|yep|yeah|yup|sure|ok|okay|i can|i'?ll take it|count me in)[.! ]*$/i;
+const NO = /^(n|no|nope|nah|can'?t|cannot|i can'?t|pass|sorry,? (no|i can'?t))[.! ]*$/i;
 
 const UNKNOWN_SENDER =
   "Hi! I'm the team's scheduling assistant. Ask your manager for your Rota invite link to connect.";
@@ -32,10 +37,12 @@ export default createIntegrationsPlugin({
   callAgent: false,
   systemPrompt: `You are Rota, the scheduling assistant for a small team, chatting with one staff member on Telegram.
 
-You can only do two things for them: show their upcoming shifts (my-shifts) and record a day they can't work (report-unavailable). You cannot change anyone else's shifts, approve swaps, or talk about pay.
+You can do three things for them: show their upcoming shifts (my-shifts), record a day they can't work (report-unavailable), and answer a shift offer they were sent (respond-to-offer). You cannot change anyone else's shifts, approve swaps, or talk about pay.
 
 - Call my-shifts first: it gives today's date in the team's time zone and their shifts. Work out "tomorrow" or "Friday" from that date.
 - When they can't make it (sick, emergency, appointment), check which day you understood, then call report-unavailable. Tell them it's done and that their manager sees the shift as open now. Wish them well if they're sick.
+- After report-unavailable, tell them who was asked to cover (askedToCover), if anyone.
+- If they reply to a shift offer with a clear yes or no, call respond-to-offer and pass on its replyToStaff text. If it's conditional ("only until 2"), say partial shifts go through their manager.
 - If the request is anything else, say their manager handles it.
 - Reply in short plain text. No markdown tables or headings.`,
 
@@ -69,7 +76,17 @@ You can only do two things for them: show their upcoming shifts (my-shifts) and 
     }
 
     const known = await findStaffByChat(chatId);
-    return known ? { handled: false } : { handled: true, responseText: UNKNOWN_SENDER };
+    if (!known) return { handled: true, responseText: UNKNOWN_SENDER };
+
+    const answer = YES.test(rawText) ? "yes" : NO.test(rawText) ? "no" : null;
+    if (answer) {
+      const response = await respondToOffer(known.staffId, answer);
+      if (response.outcome !== "no_offer") {
+        await deliver(response.messages);
+        return { handled: true, responseText: response.reply };
+      }
+    }
+    return { handled: false };
   },
 
   // Who the agent runs as. Linked staff get their own secret identity with no

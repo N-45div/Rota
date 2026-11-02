@@ -3,13 +3,14 @@ import { buildDeepLink } from "@agent-native/core/server";
 import { z } from "zod";
 
 import { getDb } from "../server/db/index.js";
+import { offersForShifts } from "../server/lib/cover.js";
 import { loadRosterContext, presentShift, requireTeam } from "../server/lib/roster.js";
 import { checkAssignment, describeRule, round, weeklyHours, type Violation } from "../server/lib/rules.js";
 import { addDays, DATE_RE, localParts, mondayOf, todayIn, weekBounds } from "../server/lib/time.js";
 
 export default defineAction({
   description:
-    "Read one team's weekly roster: staff (skills, max hours, hours this week, availability rules, notes), every shift in local time with any rule issues, and open-shift counts. Start here before drafting or changing a week.",
+    "Read one team's weekly roster: staff (skills, max hours, hours this week, availability rules, notes), every shift in local time with any rule issues and Telegram cover offers, and open-shift counts. Start here before drafting or changing a week.",
   access: {
     scope: "resource",
     resource: { type: "team", idFrom: "teamId", level: "viewer" },
@@ -47,12 +48,13 @@ export default defineAction({
       return date >= weekStart && date <= weekEnd;
     });
 
+    const offers = await offersForShifts(db, weekShifts.map((shift) => shift.id));
     const shifts = weekShifts.map((shift) => {
       const person = shift.staffId ? staffById.get(shift.staffId) : undefined;
       const issues: Violation[] = person
         ? checkAssignment({ shift, staff: person, shifts: ctx.shifts, availability: ctx.availability, timeZone: tz })
         : [];
-      return { ...presentShift(shift, tz), staffName: person?.name ?? null, issues };
+      return { ...presentShift(shift, tz), staffName: person?.name ?? null, issues, offers: offers.get(shift.id) ?? [] };
     });
 
     const staff = ctx.staff.map((person) => ({
