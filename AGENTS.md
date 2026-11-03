@@ -47,7 +47,8 @@ Weekly staff rosters with an agent shift manager (plan, timeline, and post-hacka
 | get-roster | Week view: staff, shifts, issues |
 | find-cover | Rank who can take a shift |
 | assign-shift | One assignment (null unassigns) |
-| assign-shifts | Batch draft; skips invalid ones |
+| draft-week | Fill a week in one step (preferences from notes) |
+| assign-shifts | Batch assign; skips invalid ones |
 | create-shifts / update-shift / delete-shift | Edit shifts; `locked` pins |
 | add-availability / remove-availability | Unavailability rules |
 | add-staff / update-staff / create-telegram-invite | Team members, Telegram invite |
