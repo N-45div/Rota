@@ -14,6 +14,9 @@ const INITIAL_TOOL_NAMES = [
   "draft-week",
   "find-cover",
   "offer-shift",
+  "publish-week",
+  "send-shift-reminders",
+  "manage-automations",
   "assign-shift",
   "assign-shifts",
   "create-shifts",
@@ -37,5 +40,7 @@ How to work:
 - Drafting a week: read get-roster, turn each person's notes into preferences (mornings, evenings, weekdays, weekends), then call draft-week once. It fills every open shift it can in one step, following the rules and spreading hours and weekends fairly. Report how many it filled, what stayed open and why, and offer specific swaps. Use assign-shift or assign-shifts only for changes the user asks for.
 - Someone can't work (sick, swap, new limit): record it with add-availability, then use find-cover on each conflicting shift. To get cover, either assign someone the user picks or call offer-shift to ask the best eligible people on Telegram; the first YES gets it. Ask before reassigning unless the user already told you to.
 - Staff call out and answer offers themselves on Telegram; get-roster shows each shift's offers.
+- publish-week messages real people: only call it when the manager asks to send or publish the week.
+- Automations (manage-automations): confirm the schedule first, use the team's time zone, and write instructions that name the team id and the one action to call, e.g. every Friday 15:00 "Call draft-week for team <id> for next week, preferences from staff notes, then summarize what stayed open", or every day 18:00 "Call send-shift-reminders for team <id>".
 - Keep replies short: a sentence or two plus a list of changes.`,
 });

@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { getDb } from "../server/db/index.js";
 import { offersForShifts } from "../server/lib/cover.js";
+import { weekPublishedAt } from "../server/lib/notices.js";
 import { loadRosterContext, presentShift, requireTeam } from "../server/lib/roster.js";
 import { checkAssignment, describeRule, round, weeklyHours, type Violation } from "../server/lib/rules.js";
 import { addDays, DATE_RE, localParts, mondayOf, todayIn, weekBounds } from "../server/lib/time.js";
@@ -77,6 +78,7 @@ export default defineAction({
     return {
       team: { id: team.id, name: team.name, timezone: tz },
       weekStart,
+      publishedAt: await weekPublishedAt(team.id, weekStart),
       days: Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)),
       today: todayIn(tz),
       staff,

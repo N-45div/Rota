@@ -105,6 +105,23 @@ CREATE INDEX IF NOT EXISTS staff_telegram_chat_idx ON staff (telegram_chat_id)`,
 CREATE INDEX IF NOT EXISTS cover_offers_shift_idx ON cover_offers (shift_id, status);
 CREATE INDEX IF NOT EXISTS cover_offers_staff_idx ON cover_offers (staff_id, status, created_at)`,
     },
+    {
+      version: 4,
+      name: "staff-notices",
+      sql: `CREATE TABLE IF NOT EXISTS staff_notices (
+  id TEXT PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams(id),
+  staff_id TEXT NOT NULL REFERENCES staff(id),
+  kind TEXT NOT NULL CHECK (kind IN ('week', 'reminder')),
+  ref TEXT NOT NULL,
+  sent_at TEXT NOT NULL DEFAULT (now()),
+  delivery TEXT NOT NULL DEFAULT 'sent' CHECK (delivery IN ('sent', 'failed')),
+  owner_email TEXT NOT NULL,
+  org_id TEXT,
+  UNIQUE (staff_id, kind, ref)
+);
+CREATE INDEX IF NOT EXISTS staff_notices_team_idx ON staff_notices (team_id, kind, ref)`,
+    },
   ],
   { table: "rota_app_migrations" },
 );

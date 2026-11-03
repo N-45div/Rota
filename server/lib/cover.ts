@@ -5,10 +5,10 @@
 // lock, like every other shift write). Telegram messages go out afterwards via
 // deliver(), so a slow or failed send never holds the lock or rolls back data.
 
-import { telegramAdapter } from "@agent-native/core/server";
 import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { getDb, schema } from "../db/index.js";
+import { rotaTelegramAdapter } from "./telegram-adapter.js";
 import { loadRosterContext, presentShift, type Executor, type ShiftRecord } from "./roster.js";
 import { checkAssignment, hasBlocking, rankCandidates } from "./rules.js";
 
@@ -143,20 +143,26 @@ export async function createOffers(
   };
 }
 
+/** Send one Telegram message; false if it couldn't be delivered. */
+export async function sendTelegram(chatId: string, text: string): Promise<boolean> {
+  const adapter = rotaTelegramAdapter();
+  if (!adapter.sendMessageToTarget) return false;
+  try {
+    await adapter.sendMessageToTarget({ text, platformContext: {} }, { destination: chatId });
+    return true;
+  } catch (err) {
+    console.error("[rota] Telegram send failed:", err instanceof Error ? err.message : err);
+    return false;
+  }
+}
+
 /** Send messages after the transaction commits, and record delivery. */
 export async function deliver(messages: Outgoing[]): Promise<{ sent: number; failed: number }> {
   if (messages.length === 0) return { sent: 0, failed: 0 };
-  const adapter = telegramAdapter();
   let sent = 0;
   let failed = 0;
   for (const message of messages) {
-    let ok = false;
-    try {
-      await adapter.sendMessageToTarget?.({ text: message.text, platformContext: {} }, { destination: message.chatId });
-      ok = Boolean(adapter.sendMessageToTarget);
-    } catch (err) {
-      console.error("[rota] Telegram send failed:", err instanceof Error ? err.message : err);
-    }
+    const ok = await sendTelegram(message.chatId, message.text);
     if (ok) sent += 1;
     else failed += 1;
     if (message.offerId) {

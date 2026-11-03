@@ -111,3 +111,20 @@ export const coverOffers = pgTable("cover_offers", {
   ownerEmail: text("owner_email").notNull(),
   orgId: text("org_id"),
 });
+
+// Messages sent to staff on Telegram: a published week ("week", ref = week
+// start date) or a night-before reminder ("reminder", ref = shift id). One row
+// per person per ref, so reminders are never sent twice.
+export const staffNotices = pgTable("staff_notices", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id").notNull(),
+  staffId: text("staff_id").notNull(),
+  kind: text("kind", { enum: ["week", "reminder"] }).notNull(),
+  ref: text("ref").notNull(),
+  sentAt: text("sent_at")
+    .notNull()
+    .default(sql`now()`),
+  delivery: text("delivery").notNull().default("sent"),
+  ownerEmail: text("owner_email").notNull(),
+  orgId: text("org_id"),
+});

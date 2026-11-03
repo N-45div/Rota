@@ -10,6 +10,7 @@ import {
 import actionsRegistry from "../../.generated/actions-registry.js";
 import { deliver, respondToOffer } from "../lib/cover.js";
 import { findStaffByChat, linkTelegram } from "../lib/telegram.js";
+import { rotaTelegramAdapter } from "../lib/telegram-adapter.js";
 
 const STAFF_TOOLS = ["my-shifts", "report-unavailable", "respond-to-offer"] as const;
 
@@ -35,6 +36,8 @@ export default createIntegrationsPlugin({
   actions: loadActionsFromStaticRegistry(actionsRegistry),
   initialToolNames: STAFF_TOOLS,
   callAgent: false,
+  // Use the deployment's bot token for every Telegram call (see telegram-adapter.ts).
+  adapterOverrides: [rotaTelegramAdapter()],
   systemPrompt: `You are Rota, the scheduling assistant for a small team, chatting with one staff member on Telegram.
 
 You can do three things for them: show their upcoming shifts (my-shifts), record a day they can't work (report-unavailable), and answer a shift offer they were sent (respond-to-offer). You cannot change anyone else's shifts, approve swaps, or talk about pay.
