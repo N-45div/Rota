@@ -7,10 +7,8 @@ Telegram while the manager watches a live board.
 Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 11:59 PM PT** (Nov 10 07:59 UTC). We submit by **noon PT** on Nov 9.
 
-> Deadline note (Nov 2): we heard the hackathon may be extended to Nov 13, but
-> the official site and rules (checked Nov 2) still say Nov 9, 11:59 PM PT, and
-> list Nov 13 as the winner announcement date. Keep submitting by Nov 9 unless
-> Builder confirms the extension in writing; then use the extra days for polish.
+> Deadline confirmed (Nov 3): submissions close **Mon Nov 9, 11:59 PM PT**.
+> Nov 13 is only the winner announcement.
 
 ## Working agreements
 
@@ -53,25 +51,22 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 
 Local testing without a bot: `scripts/telegram-smoke.cjs` posts fake Telegram updates.
 
-## Timeline to submission (updated Nov 2: plan runs to Nov 12)
+## Timeline to submission (deadline Nov 9)
 
 | Day | Work |
 | --- | --- |
-| **Mon Nov 2** | Plan update. Call-out flow backend: cover offers sent on Telegram, YES/NO replies, first yes gets the shift, others told it's covered. Deploy as soon as the Neon database is connected. |
-| **Tue Nov 3** | **Office hours 8:30 AM PT**: show the live build. Call-out flow on the real bot; offer status on the board. First real agent runs ("draft next week") and fixes. |
+| Oct 30 – Nov 2 | Done: scaffold, data model, rule checker, board with drag-and-drop, agent instructions, Telegram linking with limited staff identities, call-out flow (offers, YES/NO, next round), Vercel project linked to GitHub. |
+| **Tue Nov 3** | **Office hours 8:30 AM PT.** Connect Neon + keys → first live deploy, real bot, first real agent runs ("draft next week", a real call-out); fix what breaks. |
 | **Wed Nov 4** | Publish the week to everyone on Telegram. Automations: Friday "draft next week", night-before shift reminders. |
-| **Thu Nov 5** | **Office hours #2.** Shift swaps between staff (both agree, rules checked, manager approves). Manager setting: auto-approve vs ask. |
-| **Fri Nov 6** | Agent presence and an activity feed on the board ("what the agent did"), recent-edit highlights, phone-width pass. |
-| **Sat Nov 7** | Wow feature: set up a team from a photo of a paper rota or a staff CSV. |
-| **Sun Nov 8** | Real-device test with friends on Telegram; fix everything found. Record a first Clips demo. |
-| **Mon Nov 9** | **Safety submission by noon PT** (the official site still says Nov 9). |
-| **Tue Nov 10** | Polish, README, final demo script. |
-| **Wed Nov 11** | Record the final Clips demo. |
-| **Thu Nov 12** | Final submission update and buffer. |
+| **Thu Nov 5** | **Office hours #2.** Shift swaps between staff (both agree, rules checked, manager approves). |
+| **Fri Nov 6** | Activity feed ("what the agent did"), agent presence on the board, phone-width pass, README. |
+| **Sat Nov 7** | Real-phone test with friends on Telegram, bug bash, **record the Clips demo**. |
+| **Sun Nov 8** | Buffer: fix, re-record if needed, write the submission description. |
+| **Mon Nov 9** | **Submit by noon PT** and confirm receipt. |
 
-Cut list if behind (in this order): photo/CSV import, swaps, night-before
-reminders, publish week, presence polish. The call-out flow and drafting are
-the demo; never cut those.
+Cut list if behind (in this order): swaps, night-before reminders, publish
+week, presence polish. Stretch only if ahead: set up a team from a photo of a
+paper rota. The call-out flow and drafting are the demo; never cut those.
 
 ## Demo script (about 2.5 minutes)
 
