@@ -12,7 +12,7 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 
 ## Working agreements
 
-- Every commit is authored and committed as `N-45div <ndivij2004@gmail.com>`. No co-author lines or tool/session trailers in commit messages.
+- Every commit is authored and committed as `N DIVIJ <123795325+N-45div@users.noreply.github.com>` (the owner's GitHub identity; commits before Nov 4 used `N-45div <ndivij2004@gmail.com>`). No co-author lines or tool/session trailers in commit messages.
 - Default branch is `main` on github.com/N-45div/rota. Vercel (Pro, team `n45divs-projects`) deploys from it.
 
 ## Hackathon facts (from builder.io/hackathon and /rules)
@@ -41,7 +41,8 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Telegram: staff invite links, staff identity, staff actions (`my-shifts`, `report-unavailable`), invite UI | Done, tested with simulated webhooks; needs a real bot token |
 | Call-out flow: sick report opens the shift, best 3 eligible asked on Telegram, YES/NO (instant, no model), first yes wins, next round on all-no, board shows "asking N" | Done, `scripts/callout-smoke.cjs` |
 | Live at https://rota-n45divs-projects.vercel.app (Vercel Pro, functions in Tokyo `hnd1`, Supabase Postgres Tokyo, OpenAI GPT-6 Luna) | Done Nov 3. First real agent run: "Fill 30 open" drafted 28/30 in 18 s via `draft-week` and explained the 2 it couldn't fill. |
-| Telegram on production | Waiting on `TELEGRAM_BOT_TOKEN` and `TELEGRAM_BOT_USERNAME` in Vercel |
+| Telegram on production (@Rotaagentbot) | Done Nov 4: webhook set, linking and the AI call-out path verified on production (sick message → shift opened in 7 s). Real-phone delivery test pending. |
+| Send to staff (publish-week), night-before reminders, Automate menu | Done Nov 4 |
 
 ## Database: Supabase
 
@@ -60,11 +61,17 @@ Model: `OPENAI_API_KEY` is set in Vercel; the framework picks OpenAI from it.
 ## Telegram setup (once per deployment)
 
 1. In Telegram, message @BotFather, send `/newbot`, copy the token and the bot username.
-2. Set env vars: `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET` (any long random string), `TELEGRAM_BOT_USERNAME`.
-3. Signed in as the team admin, `POST /_agent-native/integrations/telegram/enable`, then `POST /_agent-native/integrations/telegram/setup` to register the webhook.
-4. On the board, click a staff member → Connect Telegram → send them the link.
+2. In Vercel (project rota → Settings → Environment Variables): `TELEGRAM_BOT_TOKEN` (Sensitive), `TELEGRAM_BOT_USERNAME` (no @), `TELEGRAM_WEBHOOK_SECRET` (any long random string), `A2A_SECRET` (random; required in production for agent replies), `APP_URL` (the production URL). Redeploy.
+3. Signed in as the team admin: `POST /_agent-native/integrations/telegram/enable`.
+4. Register the webhook (the framework's `/setup` can't read deploy env secrets for a signed-in user in production, so use the script):
+   `TELEGRAM_BOT_TOKEN=... TELEGRAM_WEBHOOK_SECRET=... node scripts/telegram-set-webhook.mjs https://rota-n45divs-projects.vercel.app`
+5. On the board, click a staff member → Connect Telegram → send them the link.
 
-Local testing without a bot: `scripts/telegram-smoke.cjs` posts fake Telegram updates.
+After rotating the token (BotFather `/revoke`): update `TELEGRAM_BOT_TOKEN` in Vercel, redeploy, and rerun step 4.
+
+Telegram calls use the deployment's bot token from the environment in every context (`server/lib/telegram-adapter.ts`).
+
+Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-smoke.cjs` post fake Telegram updates.
 
 ## Timeline to submission (deadline Nov 9)
 
