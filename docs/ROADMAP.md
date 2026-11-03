@@ -42,6 +42,20 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Call-out flow: sick report opens the shift, best 3 eligible asked on Telegram, YES/NO (instant, no model), first yes wins, next round on all-no, board shows "asking N" | Done, `scripts/callout-smoke.cjs` |
 | Deploy: Vercel project `rota` linked to GitHub, secrets set | Waiting on the Neon database (Vercel → Storage) and the API/bot keys |
 
+## Database: Supabase
+
+Rota talks to Postgres directly (Drizzle), so it needs Supabase's connection
+strings, not the supabase-js publishable key. In Supabase → **Connect**:
+
+- `DATABASE_URL` = **Transaction pooler** URL (port 6543), used by the app.
+- `DATABASE_MIGRATION_URL` = **Session pooler** URL (port 5432), used only by
+  `scripts/vercel-build.sh` for release migrations.
+
+Put both in Vercel (project rota → Settings → Environment Variables, Sensitive,
+Production + Preview) with the real database password. Never commit them.
+
+Model: `OPENAI_API_KEY` is set in Vercel; the framework picks OpenAI from it.
+
 ## Telegram setup (once per deployment)
 
 1. In Telegram, message @BotFather, send `/newbot`, copy the token and the bot username.
