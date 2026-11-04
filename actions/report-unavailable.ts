@@ -3,6 +3,7 @@ import { and, eq, gt, lt } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
+import { logActivity, ROTA, shiftLabel } from "../server/lib/activity.js";
 import { createOffers, deliver, type OfferRound } from "../server/lib/cover.js";
 import { presentShift } from "../server/lib/roster.js";
 import { checkAssignment, describeRule, type RuleAvailability } from "../server/lib/rules.js";
@@ -99,8 +100,24 @@ export default defineAction({
       // Ask the best eligible teammates on Telegram, inside the same lock.
       const rounds: OfferRound[] = [];
       for (const shift of opened) {
+        await logActivity(tx, {
+          teamId: team.id,
+          actor: { kind: "staff", name: me.staffName },
+          kind: "callout",
+          text: `${me.staffName} can't work ${shiftLabel(shift)}: ${args.reason}`,
+          shiftId: shift.id,
+        });
         const round = await createOffers(tx, team.id, shift.id);
         if (round) rounds.push(round);
+        await logActivity(tx, {
+          teamId: team.id,
+          actor: ROTA,
+          kind: "offer",
+          text: round?.offeredTo.length
+            ? `Asked ${round.offeredTo.join(", ")} on Telegram to cover ${shiftLabel(shift)}`
+            : `Nobody else can cover ${shiftLabel(shift)}; it needs the manager`,
+          shiftId: shift.id,
+        });
       }
 
       return {

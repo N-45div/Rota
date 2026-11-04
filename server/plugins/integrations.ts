@@ -8,6 +8,7 @@ import {
 } from "@agent-native/core/server";
 
 import actionsRegistry from "../../.generated/actions-registry.js";
+import { notifyTeamChanged } from "../lib/activity.js";
 import { deliver, respondToOffer } from "../lib/cover.js";
 import { findStaffByChat, linkTelegram } from "../lib/telegram.js";
 import { rotaTelegramAdapter } from "../lib/telegram-adapter.js";
@@ -85,6 +86,7 @@ You can do three things for them: show their upcoming shifts (my-shifts), record
     if (answer) {
       const response = await respondToOffer(known.staffId, answer);
       if (response.outcome !== "no_offer") {
+        notifyTeamChanged(response.teamId);
         await deliver(response.messages);
         return { handled: true, responseText: response.reply };
       }

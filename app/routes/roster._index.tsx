@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { pickTeam } from "@/lib/last-team";
 
 function browserTimeZone() {
   try {
@@ -44,7 +45,7 @@ export default function RosterIndex() {
     );
   }
 
-  const first = teams.data?.teams[0];
+  const first = pickTeam(teams.data?.teams ?? []);
   if (first) return <Navigate to={`/roster/${first.id}`} replace />;
 
   return (

@@ -42,6 +42,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { rememberTeam } from "@/lib/last-team";
 import { TAB_ID } from "@/lib/tab-id";
 
 export default function RosterWeekRoute() {
@@ -50,7 +51,7 @@ export default function RosterWeekRoute() {
   const [searchParams, setSearchParams] = useSearchParams();
   const week = searchParams.get("week") ?? undefined;
   const params = useMemo(() => ({ teamId, ...(week ? { weekStart: week } : {}) }), [teamId, week]);
-  const roster = useActionQuery("get-roster", params);
+  const roster = useActionQuery("get-roster", params, { refetchInterval: 30_000 });
   const mutations = useRosterMutations(params);
   const [confirmSend, setConfirmSend] = useState(false);
   const publish = useActionMutation("publish-week", {
@@ -68,6 +69,10 @@ export default function RosterWeekRoute() {
   });
 
   useSetPageTitle(roster.data?.team.name ?? t("roster.nav"));
+  const loadedTeam = roster.data?.team.id;
+  useEffect(() => {
+    if (loadedTeam) rememberTeam(loadedTeam);
+  }, [loadedTeam]);
 
   // Clear the selected shift when leaving the board.
   useEffect(

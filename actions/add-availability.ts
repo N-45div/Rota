@@ -1,10 +1,12 @@
 import { defineAction, fail } from "@agent-native/core/action";
 import { assertAccess } from "@agent-native/core/sharing";
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
 import { loadRosterContext, presentShift, requireTeam, requireUser, teamIdForStaff, teamChange } from "../server/lib/roster.js";
 import { checkAssignment, describeRule } from "../server/lib/rules.js";
+import { actorFromCtx, logActivity } from "../server/lib/activity.js";
 import { DATE_RE, parseHhMm, TIME_RE, todayIn, zonedToUtcIso, addDays } from "../server/lib/time.js";
 
 export default defineAction({
@@ -62,6 +64,13 @@ export default defineAction({
       orgId: team.orgId,
     }));
     await db.insert(schema.availability).values(rows);
+    const [who] = await db.select({ name: schema.staff.name }).from(schema.staff).where(eq(schema.staff.id, args.staffId)).limit(1);
+    await logActivity(db, {
+      teamId: team.id,
+      actor: actorFromCtx(ctx),
+      kind: "availability",
+      text: `Noted ${who?.name ?? "someone"} can't work ${rows.map((row) => describeRule(row)).join("; ")}`,
+    });
 
     // Upcoming shifts (next 4 weeks) this person is on that now clash.
     const today = todayIn(team.timezone);

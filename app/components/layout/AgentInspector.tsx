@@ -22,7 +22,26 @@ export function AgentInspector({
 }: AgentInspectorProps) {
   const navigate = useNavigate();
   const t = useT();
-  const onRoster = useLocation().pathname.startsWith("/roster");
+  const { pathname } = useLocation();
+  const page = pathname.startsWith("/roster")
+    ? "roster"
+    : pathname.startsWith("/staff")
+      ? "staff"
+      : pathname.startsWith("/activity")
+        ? "activity"
+        : "other";
+  const emptyStateText = {
+    roster: t("roster.agentEmptyState"),
+    staff: t("team.agentEmptyState"),
+    activity: t("activity.agentEmptyState"),
+    other: t("roster.agentEmptyState"),
+  }[page];
+  const suggestions = {
+    roster: [t("roster.suggestDraft"), t("roster.suggestCallout"), t("roster.suggestRule")],
+    staff: [t("team.suggestAvailability"), t("team.suggestAdd"), t("team.suggestTelegram")],
+    activity: [t("activity.suggestToday"), t("activity.suggestOpen"), t("activity.suggestWeek")],
+    other: [t("roster.suggestDraft"), t("roster.suggestCallout"), t("roster.suggestRule")],
+  }[page];
 
   function openAskAgentFullscreen(threadId?: string) {
     focusAgentChat();
@@ -38,17 +57,9 @@ export function AgentInspector({
       browserTabId={TAB_ID}
       openOnChatRunning={chatHomeHandoffActive}
       onFullscreenRequest={openAskAgentFullscreen}
-      emptyStateText={onRoster ? t("roster.agentEmptyState") : t("chat.inspectEmptyState")}
+      emptyStateText={emptyStateText}
       agentPageHref="/settings/agent"
-      suggestions={
-        onRoster
-          ? [t("roster.suggestDraft"), t("roster.suggestCallout"), t("roster.suggestRule")]
-          : [
-              t("chat.inspectSuggestionCapabilities"),
-              t("chat.inspectSuggestionHello"),
-              t("chat.inspectSuggestionAction"),
-            ]
-      }
+      suggestions={suggestions}
     >
       {children}
     </AgentSidebar>

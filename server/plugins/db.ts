@@ -122,6 +122,23 @@ CREATE INDEX IF NOT EXISTS cover_offers_staff_idx ON cover_offers (staff_id, sta
 );
 CREATE INDEX IF NOT EXISTS staff_notices_team_idx ON staff_notices (team_id, kind, ref)`,
     },
+    {
+      version: 5,
+      name: "activity",
+      sql: `CREATE TABLE IF NOT EXISTS activity (
+  id TEXT PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams(id),
+  at TEXT NOT NULL DEFAULT (now()),
+  actor_kind TEXT NOT NULL CHECK (actor_kind IN ('manager', 'agent', 'staff', 'system')),
+  actor_name TEXT NOT NULL,
+  kind TEXT NOT NULL,
+  text TEXT NOT NULL,
+  shift_id TEXT,
+  owner_email TEXT NOT NULL,
+  org_id TEXT
+);
+CREATE INDEX IF NOT EXISTS activity_team_at_idx ON activity (team_id, at DESC)`,
+    },
   ],
   { table: "rota_app_migrations" },
 );

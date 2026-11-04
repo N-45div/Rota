@@ -34,24 +34,25 @@ Before building common workspace or agent UI, read `agent-native-toolkit`; for s
 
 ## Rota
 
-Weekly staff rosters with an agent shift manager (plan, timeline, and post-hackathon roadmap: `docs/ROADMAP.md`). `/roster` picks a team; `/roster/:teamId?week=YYYY-MM-DD` is the board (staff rows × Mon–Sun, plus an open-shifts lane). Sign-in lands on `/roster`.
+Weekly staff rosters with an agent shift manager (plan and roadmap: `docs/ROADMAP.md`). Sign-in lands on `/roster`. Pages: `/roster/:teamId?week=YYYY-MM-DD` board (staff × Mon–Sun plus an open lane), `/staff/:teamId` Team, `/activity/:teamId` feed; bare paths open the last team.
 
-- Teams are org-visible with an active org, else private. Staff, shifts, and availability belong to a team and inherit its access.
-- Every assignment goes through the rule checker (`server/lib/rules.ts`): `block` (double-booked, inactive) never passes; `override` (missing skill, unavailable, over max hours) needs `override=true`, which only the user may request; `warn` (rest under 10h) passes. Rejections are 409 `rule_violation` or `shift_locked`; report the reason.
+- Teams are org-visible with an active org, else private; staff, shifts, and availability inherit team access.
+- Every assignment goes through `server/lib/rules.ts`: `block` (double-booked, inactive) never passes; `override` (missing skill, unavailable, over max hours) needs `override=true`, only when the user asks; `warn` (rest under 10h) passes. Rejections are 409 `rule_violation`/`shift_locked`; report the reason.
 - Shift writes lock the team row in a transaction so concurrent assignments can't double-book.
-- Dates YYYY-MM-DD and times HH:MM in the team time zone; storage is UTC ISO. End ≤ start means the next day.
-- `navigation` adds `teamId` and `week`; `selection:<tab>` holds `{kind:"shift", id}`, surfaced by `view-screen` as `selectedShift`.
+- Dates YYYY-MM-DD, times HH:MM in the team time zone; storage is UTC ISO. End ≤ start means the next day.
+- `navigation` adds `teamId`/`week`; `selection:<tab>` holds `{kind:"shift", id}` (`view-screen` → `selectedShift`).
+- Writes log plain-language entries to `activity` (`server/lib/activity.ts`).
 
 | Action | Purpose |
 |---|---|
-| get-roster | Week view: staff, shifts, issues |
-| find-cover | Rank who can take a shift |
-| assign-shift | One assignment (null unassigns) |
-| draft-week | Fill a week in one step (preferences from notes) |
-| assign-shifts | Batch assign; skips invalid ones |
-| create-shifts / update-shift / delete-shift | Edit shifts; `locked` pins |
+| get-roster / list-activity | Week view; what happened |
+| find-cover / offer-shift | Rank cover; ask on Telegram |
+| assign-shift / assign-shifts | One (null unassigns) / batch |
+| draft-week | Fill a week (preferences from notes) |
+| publish-week / send-shift-reminders | Send the week; reminders |
+| create-shifts / update-shift / delete-shift | Edit; `locked` pins |
 | add-availability / remove-availability | Unavailability rules |
-| add-staff / update-staff / create-telegram-invite | Team members, Telegram invite |
+| add-staff / update-staff / create-telegram-invite | People, Telegram invite |
 | seed-demo-team | Demo café |
 
-Telegram (`server/plugins/integrations.ts`): staff link via `/start <code>` and run as a secret staff identity with no team access, limited to `my-shifts` and `report-unavailable`. Setup steps: `docs/ROADMAP.md`.
+Telegram (`server/plugins/integrations.ts`): staff link via `/start <code>` and run as a secret staff identity with no team access, limited to `my-shifts`, `report-unavailable`, and `respond-to-offer`. Setup: `docs/ROADMAP.md`.

@@ -1,39 +1,45 @@
 @import "@fontsource-variable/inter";
+@import "@fontsource-variable/fraunces";
 
 @import "tailwindcss";
 @import "@agent-native/toolkit/styles.css";
 
 @source "./**/*.{ts,tsx}";
 
+/* Rota brand: warm hospitality. Fraunces for display type, Inter for UI. */
+@theme {
+  --font-display: "Fraunces Variable", "Fraunces", Georgia, serif;
+}
+
 :root {
-  --background: 0 0% 100%;
-  --foreground: 0 0% 10%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 10%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 10%;
-  --primary: 0 0% 15%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 0 0% 95%;
-  --secondary-foreground: 0 0% 15%;
-  --muted: 0 0% 95%;
-  --muted-foreground: 0 0% 43%;
-  --accent: 0 0% 95%;
-  --accent-foreground: 0 0% 15%;
-  --destructive: 0 91% 71%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 0 0% 40%;
-  --radius: 0.5rem;
-  --sidebar-background: 0 0% 97%;
-  --sidebar-foreground: 0 0% 43%;
-  --sidebar-primary: 0 0% 15%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 95%;
-  --sidebar-accent-foreground: 0 0% 15%;
-  --sidebar-border: 0 0% 90%;
-  --sidebar-ring: 0 0% 40%;
+  --background: 33 50% 97%;
+  --foreground: 20 22% 14%;
+  --card: 40 50% 99.5%;
+  --card-foreground: 20 22% 14%;
+  --popover: 40 50% 99.5%;
+  --popover-foreground: 20 22% 14%;
+  --primary: 12 76% 54%;
+  --primary-foreground: 36 60% 98%;
+  --secondary: 33 35% 92%;
+  --secondary-foreground: 20 22% 18%;
+  --muted: 33 30% 93%;
+  --muted-foreground: 24 10% 40%;
+  --accent: 28 60% 93%;
+  --accent-foreground: 20 22% 16%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 36 60% 98%;
+  --border: 30 20% 87%;
+  --input: 30 20% 85%;
+  --ring: 12 76% 54%;
+  --radius: 0.75rem;
+  --sidebar-background: 33 40% 94.5%;
+  --sidebar-foreground: 24 10% 38%;
+  --sidebar-primary: 12 76% 54%;
+  --sidebar-primary-foreground: 36 60% 98%;
+  --sidebar-accent: 30 40% 90%;
+  --sidebar-accent-foreground: 20 22% 14%;
+  --sidebar-border: 30 20% 87%;
+  --sidebar-ring: 12 76% 54%;
   --chat-sidebar-width: 17.5rem;
   --chat-sidebar-content-inset: 0.5rem;
   --chat-sidebar-row-padding: 0.75rem;
@@ -229,37 +235,44 @@
 }
 
 .dark {
-  --background: 0 0% 13%;
-  --foreground: 0 0% 90%;
-  --card: 0 0% 16.47%;
-  --card-foreground: 0 0% 90%;
-  --popover: 0 0% 15%;
-  --popover-foreground: 0 0% 90%;
-  --primary: 0 0% 75%;
-  --primary-foreground: 0 0% 10%;
-  --secondary: 0 0% 18%;
-  --secondary-foreground: 0 0% 90%;
-  --muted: 0 0% 16%;
-  --muted-foreground: 0 0% 60%;
-  --accent: 0 0% 18%;
-  --accent-foreground: 0 0% 90%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 24%;
-  --input: 0 0% 24%;
-  --ring: 0 0% 60%;
-  --radius: 0.5rem;
-  --sidebar-background: 0 0% 10%;
-  --sidebar-foreground: 0 0% 60%;
-  --sidebar-primary: 0 0% 75%;
-  --sidebar-primary-foreground: 0 0% 10%;
-  --sidebar-accent: 0 0% 16%;
-  --sidebar-accent-foreground: 0 0% 90%;
-  --sidebar-border: 0 0% 20%;
-  --sidebar-ring: 0 0% 60%;
+  --background: 20 14% 9%;
+  --foreground: 33 30% 92%;
+  --card: 20 13% 12%;
+  --card-foreground: 33 30% 92%;
+  --popover: 20 13% 12%;
+  --popover-foreground: 33 30% 92%;
+  --primary: 13 80% 60%;
+  --primary-foreground: 20 20% 10%;
+  --secondary: 20 10% 17%;
+  --secondary-foreground: 33 30% 92%;
+  --muted: 20 10% 15%;
+  --muted-foreground: 30 10% 62%;
+  --accent: 18 20% 18%;
+  --accent-foreground: 33 30% 92%;
+  --destructive: 0 70% 58%;
+  --destructive-foreground: 33 30% 96%;
+  --border: 20 10% 21%;
+  --input: 20 10% 23%;
+  --ring: 13 80% 60%;
+  --radius: 0.75rem;
+  --sidebar-background: 20 14% 7.5%;
+  --sidebar-foreground: 30 10% 62%;
+  --sidebar-primary: 13 80% 60%;
+  --sidebar-primary-foreground: 20 20% 10%;
+  --sidebar-accent: 20 12% 15%;
+  --sidebar-accent-foreground: 33 30% 92%;
+  --sidebar-border: 20 10% 18%;
+  --sidebar-ring: 13 80% 60%;
 }
 
 @layer base {
+  h1,
+  h2,
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+    letter-spacing: -0.015em;
+  }
   body {
     @apply bg-background text-foreground;
     font-family: "Inter Variable", "Inter", sans-serif;

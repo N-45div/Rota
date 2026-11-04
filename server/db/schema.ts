@@ -128,3 +128,21 @@ export const staffNotices = pgTable("staff_notices", {
   ownerEmail: text("owner_email").notNull(),
   orgId: text("org_id"),
 });
+
+// What happened on a team, in plain words, for the Activity feed. actorKind
+// says who did it: the manager, Rota (the agent or an automation), or a staff
+// member over Telegram.
+export const activity = pgTable("activity", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id").notNull(),
+  at: text("at")
+    .notNull()
+    .default(sql`now()`),
+  actorKind: text("actor_kind", { enum: ["manager", "agent", "staff", "system"] }).notNull(),
+  actorName: text("actor_name").notNull(),
+  kind: text("kind").notNull(),
+  text: text("text").notNull(),
+  shiftId: text("shift_id"),
+  ownerEmail: text("owner_email").notNull(),
+  orgId: text("org_id"),
+});

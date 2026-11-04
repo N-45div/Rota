@@ -8,7 +8,7 @@ import { presentShift, requireTeam } from "../server/lib/roster.js";
 
 export default defineAction({
   description:
-    "Read what the user is looking at: the current view, and on the roster the team, week, and the shift they selected. Basic navigation is already in <current-screen>; call this for the selected shift's details.",
+    "Read what the user is looking at: the current view (roster, staff = Team page, activity = Activity feed), its team, and on the roster the week and the shift they selected. Basic navigation is already in <current-screen>; call this for the selected shift's details.",
   schema: z.object({}),
   http: false,
   readOnly: true,
@@ -23,11 +23,12 @@ export default defineAction({
     const screen: Record<string, unknown> = {};
     if (navigation) screen.navigation = navigation;
 
-    if (navigation?.view === "roster" && navigation.teamId) {
+    const teamView = navigation?.view === "roster" || navigation?.view === "staff" || navigation?.view === "activity";
+    if (teamView && navigation?.teamId) {
       try {
         const team = await requireTeam(getDb(), navigation.teamId);
         screen.team = { id: team.id, name: team.name, timezone: team.timezone };
-        if (selection?.kind === "shift" && selection.id) {
+        if (navigation.view === "roster" && selection?.kind === "shift" && selection.id) {
           const { shifts, staff } = schema;
           const [row] = await getDb()
             .select({

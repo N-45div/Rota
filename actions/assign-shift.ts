@@ -6,6 +6,7 @@ import { z } from "zod";
 import { getDb, schema } from "../server/db/index.js";
 import { loadRosterContext, presentShift, requireTeam, teamIdForShift, teamChange } from "../server/lib/roster.js";
 import { checkAssignment, hasBlocking } from "../server/lib/rules.js";
+import { actorFromCtx, logActivity, shiftLabel } from "../server/lib/activity.js";
 
 export default defineAction({
   description:
@@ -19,7 +20,7 @@ export default defineAction({
       .describe("Allow overridable rules (skill, availability, max hours). Only when the user asks."),
   }),
   changeResource: teamChange,
-  run: async (input) => {
+  run: async (input, ctx) => {
     // Treat "null" and "" as unassign too; CLI flags and some callers send strings.
     const args = { ...input, staffId: input.staffId === "null" || input.staffId === "" ? null : input.staffId };
     const teamId = await teamIdForShift(getDb(), args.shiftId);
@@ -79,6 +80,16 @@ export default defineAction({
         .update(shifts)
         .set({ staffId: args.staffId, updatedAt: new Date().toISOString() })
         .where(eq(shifts.id, shift.id));
+      const label = shiftLabel(presentShift(shift, team.timezone));
+      await logActivity(tx, {
+        teamId: team.id,
+        actor: actorFromCtx(ctx),
+        kind: "assign",
+        text: staffName
+          ? `Put ${staffName} on ${label}${args.override ? " (rule overridden)" : ""}`
+          : `Made ${label} open`,
+        shiftId: shift.id,
+      });
 
       return {
         ...presentShift({ ...shift, staffId: args.staffId }, team.timezone),

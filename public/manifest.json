@@ -1,10 +1,10 @@
 {
   "name": "Rota",
   "short_name": "Rota",
-  "description": "Workspace app for Rota.",
-  "start_url": "./home",
-  "background_color": "#111111",
-  "theme_color": "#18181B",
+  "description": "Your AI shift manager: weekly rosters, call-outs, and cover on Telegram.",
+  "start_url": "./roster",
+  "background_color": "#FBF7F2",
+  "theme_color": "#E4572E",
   "icons": [
     {
       "src": "icon-192.svg",

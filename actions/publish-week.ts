@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
+import { actorFromCtx, logActivity } from "../server/lib/activity.js";
 import { publishWeek } from "../server/lib/notices.js";
 import { requireTeam } from "../server/lib/roster.js";
 import { DATE_RE, mondayOf } from "../server/lib/time.js";
@@ -19,7 +20,7 @@ export default defineAction({
     weekStart: z.string().regex(DATE_RE).describe("Any date in the week, YYYY-MM-DD in the team's time zone"),
   }),
   changeResource: (input) => ({ resourceType: "team", resourceId: input.teamId }),
-  run: async ({ teamId, weekStart }) => {
+  run: async ({ teamId, weekStart }, ctx) => {
     const team = await requireTeam(getDb(), teamId, { write: true });
     const [owner] = await getDb()
       .select({ ownerEmail: schema.teams.ownerEmail })
@@ -28,6 +29,12 @@ export default defineAction({
       .limit(1);
     const week = mondayOf(weekStart);
     const result = await publishWeek({ ...team, ownerEmail: owner!.ownerEmail }, week);
+    await logActivity(getDb(), {
+      teamId: team.id,
+      actor: actorFromCtx(ctx),
+      kind: "publish",
+      text: `Sent ${result.range} to ${result.sentTo.length} people on Telegram`,
+    });
     return {
       teamId: team.id,
       weekStart: week,

@@ -3,6 +3,7 @@ import { assertAccess } from "@agent-native/core/sharing";
 import { z } from "zod";
 
 import { getDb } from "../server/db/index.js";
+import { actorFromCtx, logActivity, shiftLabel } from "../server/lib/activity.js";
 import { createOffers, DEFAULT_OFFER_COUNT, deliver } from "../server/lib/cover.js";
 import { requireTeam, teamChange, teamIdForShift } from "../server/lib/roster.js";
 
@@ -20,12 +21,22 @@ export default defineAction({
       .describe("How many people to ask at once"),
   }),
   changeResource: teamChange,
-  run: async ({ shiftId, count }) => {
+  run: async ({ shiftId, count }, ctx) => {
     const teamId = await teamIdForShift(getDb(), shiftId);
     await assertAccess("team", teamId, "editor");
     const round = await getDb().transaction(async (tx) => {
       await requireTeam(tx, teamId, { forUpdate: true, write: true });
-      return createOffers(tx, teamId, shiftId, count);
+      const created = await createOffers(tx, teamId, shiftId, count);
+      if (created?.offeredTo.length) {
+        await logActivity(tx, {
+          teamId,
+          actor: actorFromCtx(ctx),
+          kind: "offer",
+          text: `Asked ${created.offeredTo.join(", ")} on Telegram to cover ${shiftLabel(created.shift)}`,
+          shiftId,
+        });
+      }
+      return created;
     });
     if (!round) {
       fail("That shift isn't open (it's assigned, locked, removed, or already started).", {

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
+import { actorFromCtx, dayText, logActivity } from "../server/lib/activity.js";
 import { draftWeek, hoursSummary } from "../server/lib/draft.js";
 import { loadRosterContext, presentShift, requireTeam } from "../server/lib/roster.js";
 import { addDays, DATE_RE, localParts, mondayOf, todayIn, weekBounds } from "../server/lib/time.js";
@@ -38,7 +39,7 @@ export default defineAction({
     label: "Open roster",
   }),
   changeResource: (input) => ({ resourceType: "team", resourceId: input.teamId }),
-  run: async (args) =>
+  run: async (args, actionCtx) =>
     getDb().transaction(async (tx) => {
       const team = await requireTeam(tx, args.teamId, { forUpdate: true, write: true });
       const tz = team.timezone;
@@ -76,6 +77,17 @@ export default defineAction({
         const p = presentShift(byId.get(id)!, tz);
         return `${p.date} ${p.start}–${p.end} ${p.role}`;
       };
+
+      if (open.length > 0) {
+        await logActivity(tx, {
+          teamId: team.id,
+          actor: actorFromCtx(actionCtx),
+          kind: "draft",
+          text: `Drafted the week of ${dayText(weekStart)}: filled ${result.assignments.length} of ${open.length} open shifts${
+            result.unfilled.length ? `, ${result.unfilled.length} still open` : ""
+          }`,
+        });
+      }
 
       return {
         teamId: team.id,

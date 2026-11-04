@@ -8,6 +8,7 @@
 import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
 
 import { getDb, schema } from "../db/index.js";
+import { logActivity, ROTA, shiftLabel } from "./activity.js";
 import { rotaTelegramAdapter } from "./telegram-adapter.js";
 import { loadRosterContext, presentShift, type Executor, type ShiftRecord } from "./roster.js";
 import { checkAssignment, hasBlocking, rankCandidates } from "./rules.js";
@@ -258,6 +259,22 @@ export async function respondToOffer(
         .limit(1);
       // Everyone asked so far said no: ask the next people in line.
       const nextRound = !stillPending && !shift.staffId ? await createOffers(tx, team.id, shift.id) : null;
+      await logActivity(tx, {
+        teamId: team.id,
+        actor: { kind: "staff", name: me?.name ?? "Someone" },
+        kind: "decline",
+        text: `${me?.name ?? "Someone"} passed on ${shiftLabel(presented)}`,
+        shiftId: shift.id,
+      });
+      if (nextRound?.offeredTo.length) {
+        await logActivity(tx, {
+          teamId: team.id,
+          actor: ROTA,
+          kind: "offer",
+          text: `Asked ${nextRound.offeredTo.join(", ")} next to cover ${shiftLabel(presented)}`,
+          shiftId: shift.id,
+        });
+      }
       return {
         outcome: "declined",
         teamId: team.id,
@@ -288,6 +305,13 @@ export async function respondToOffer(
     const note = shift.note ? `${shift.note} → covered by ${person.name}` : `Covered by ${person.name} via Telegram`;
     await tx.update(shifts).set({ staffId, note: note.slice(0, 200), updatedAt: now }).where(eq(shifts.id, shift.id));
     await close("accepted");
+    await logActivity(tx, {
+      teamId: team.id,
+      actor: { kind: "staff", name: person.name },
+      kind: "cover",
+      text: `${person.name} took ${shiftLabel(presented)} on Telegram`,
+      shiftId: shift.id,
+    });
 
     // Tell everyone else who was asked that it's covered.
     const others = await tx

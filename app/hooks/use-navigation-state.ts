@@ -81,8 +81,9 @@ function rosterState(
   pathname: string,
   searchParams: URLSearchParams,
 ): Pick<NavigationState, "teamId" | "week"> {
-  const teamId = pathname.match(/^\/roster\/([^/]+)/)?.[1];
-  const week = searchParams.get("week");
+  const match = pathname.match(/^\/(roster|staff|activity)\/([^/]+)/);
+  const teamId = match?.[2];
+  const week = match?.[1] === "roster" ? searchParams.get("week") : null;
   return {
     ...(teamId ? { teamId: decodeURIComponent(teamId) } : {}),
     ...(teamId && week ? { week } : {}),
@@ -91,6 +92,8 @@ function rosterState(
 
 function viewForPath(pathname: string): string {
   if (pathname.startsWith("/roster")) return "roster";
+  if (pathname.startsWith("/staff")) return "staff";
+  if (pathname.startsWith("/activity")) return "activity";
   if (isChatPathname(pathname)) return "chat";
   if (pathname === HOME_PATH) return "home";
   if (pathname.startsWith("/database")) return "database";
@@ -108,6 +111,10 @@ function pathForView(view?: string): string {
   switch (view) {
     case "roster":
       return "/roster";
+    case "staff":
+      return "/staff";
+    case "activity":
+      return "/activity";
     case "chat":
     case "ask":
       return NEW_CHAT_PATH;

@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import { getDb, schema } from "../server/db/index.js";
+import { dayText, logActivity, ROTA } from "../server/lib/activity.js";
 import { sendReminders } from "../server/lib/notices.js";
 import { requireTeam } from "../server/lib/roster.js";
 import { addDays, DATE_RE, todayIn } from "../server/lib/time.js";
@@ -27,6 +28,14 @@ export default defineAction({
       .limit(1);
     const day = date ?? addDays(todayIn(team.timezone), 1);
     const result = await sendReminders({ ...team, ownerEmail: owner!.ownerEmail }, day);
+    if (result.sent > 0) {
+      await logActivity(getDb(), {
+        teamId: team.id,
+        actor: ROTA,
+        kind: "reminder",
+        text: `Reminded ${result.sent} ${result.sent === 1 ? "person" : "people"} about their shifts on ${dayText(day)}`,
+      });
+    }
     return { teamId: team.id, ...result };
   },
 });

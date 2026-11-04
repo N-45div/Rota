@@ -9,6 +9,7 @@ import { fail } from "@agent-native/core/action";
 import { and, eq, ne } from "drizzle-orm";
 
 import { getDb, schema } from "../db/index.js";
+import { logActivity, notifyTeamChanged } from "./activity.js";
 
 const PRINCIPAL_DOMAIN = "staff.rota.invalid";
 // No 0/O/1/I so codes are easy to read aloud or type.
@@ -98,6 +99,13 @@ export async function linkTelegram(code: string, chatId: string): Promise<Linked
       })
       .where(eq(staff.id, target.staffId));
   });
+  await logActivity(getDb(), {
+    teamId: target.teamId,
+    actor: { kind: "staff", name: target.staffName },
+    kind: "telegram",
+    text: `${target.staffName} connected Telegram`,
+  });
+  notifyTeamChanged(target.teamId);
   return { ...target, principal };
 }
 
