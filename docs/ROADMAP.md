@@ -43,6 +43,8 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Live at https://rota-n45divs-projects.vercel.app (Vercel Pro, functions in Tokyo `hnd1`, Supabase Postgres Tokyo, OpenAI GPT-6 Luna) | Done Nov 3. First real agent run: "Fill 30 open" drafted 28/30 in 18 s via `draft-week` and explained the 2 it couldn't fill. |
 | Telegram on production (@Rotaagentbot) | Done Nov 4: webhook set, linking and the AI call-out path verified on production (sick message → shift opened in 7 s). Real-phone delivery test pending. |
 | Send to staff (publish-week), night-before reminders, Automate menu | Done Nov 4 |
+| Rota brand: warm theme (cream, tomato, espresso), Fraunces headings, Rota mark and icons, branded sign-in page | Done Nov 4 |
+| Team page (`/staff`), Activity feed (`/activity`, plain-language log of what the manager, Rota, and staff did), last-team memory | Done Nov 4, live on production |
 
 ## Database: Supabase
 
@@ -79,9 +81,9 @@ Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-s
 | --- | --- |
 | Oct 30 – Nov 2 | Done: scaffold, data model, rule checker, board with drag-and-drop, agent instructions, Telegram linking with limited staff identities, call-out flow (offers, YES/NO, next round), Vercel project linked to GitHub. |
 | **Tue Nov 3** | **Office hours 8:30 AM PT.** Connect Neon + keys → first live deploy, real bot, first real agent runs ("draft next week", a real call-out); fix what breaks. |
-| **Wed Nov 4** | Publish the week to everyone on Telegram. Automations: Friday "draft next week", night-before shift reminders. |
+| **Wed Nov 4** | Done: publish the week on Telegram, Automate menu, reminders; UI revamp (brand, Team page, Activity feed, sign-in). |
 | **Thu Nov 5** | **Office hours #2.** Shift swaps between staff (both agree, rules checked, manager approves). |
-| **Fri Nov 6** | Activity feed ("what the agent did"), agent presence on the board, phone-width pass, README. |
+| **Fri Nov 6** | Agent presence on the board, phone-width pass on the board, README. |
 | **Sat Nov 7** | Real-phone test with friends on Telegram, bug bash, **record the Clips demo**. |
 | **Sun Nov 8** | Buffer: fix, re-record if needed, write the submission description. |
 | **Mon Nov 9** | **Submit by noon PT** and confirm receipt. |
