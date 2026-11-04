@@ -1,8 +1,11 @@
 import { createToolkitAuthPlugin } from "@agent-native/toolkit/app/auth/server";
 
+import { renderRotaAuthPage } from "../lib/auth-brand.js";
+
 export default createToolkitAuthPlugin({
   workspaceAppPublicPaths: ["/"],
   rootAuth: true,
+  renderSignInPage: renderRotaAuthPage,
   marketing: {
     appName: "Rota",
     tagline: "Your AI shift manager",
