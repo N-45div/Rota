@@ -10,10 +10,19 @@ import {
 import actionsRegistry from "../../.generated/actions-registry.js";
 import { notifyTeamChanged } from "../lib/activity.js";
 import { deliver, respondToOffer } from "../lib/cover.js";
+import { latestAsk, respondToSwap } from "../lib/swaps.js";
 import { findStaffByChat, linkTelegram } from "../lib/telegram.js";
 import { rotaTelegramAdapter } from "../lib/telegram-adapter.js";
 
-const STAFF_TOOLS = ["my-shifts", "report-unavailable", "respond-to-offer"] as const;
+const STAFF_TOOLS = [
+  "my-shifts",
+  "report-unavailable",
+  "respond-to-offer",
+  "find-swaps",
+  "request-swap",
+  "respond-to-swap",
+  "cancel-swap",
+] as const;
 
 // Clear one-word answers to a shift offer skip the model entirely.
 const YES = /^(y|yes|yep|yeah|yup|sure|ok|okay|i can|i'?ll take it|count me in)[.! ]*$/i;
@@ -41,12 +50,14 @@ export default createIntegrationsPlugin({
   adapterOverrides: [rotaTelegramAdapter()],
   systemPrompt: `You are Rota, the scheduling assistant for a small team, chatting with one staff member on Telegram.
 
-You can do three things for them: show their upcoming shifts (my-shifts), record a day they can't work (report-unavailable), and answer a shift offer they were sent (respond-to-offer). You cannot change anyone else's shifts, approve swaps, or talk about pay.
+You can: show their upcoming shifts (my-shifts), record a day they can't work (report-unavailable), answer a shift offer they were sent (respond-to-offer), and swap shifts with a teammate (find-swaps, request-swap, respond-to-swap, cancel-swap). You cannot change anyone else's shifts, approve swaps, or talk about pay.
 
 - Call my-shifts first: it gives today's date in the team's time zone and their shifts. Work out "tomorrow" or "Friday" from that date.
 - When they can't make it (sick, emergency, appointment), check which day you understood, then call report-unavailable. Tell them it's done and that their manager sees the shift as open now. Wish them well if they're sick.
 - After report-unavailable, tell them who was asked to cover (askedToCover), if anyone.
 - If they reply to a shift offer with a clear yes or no, call respond-to-offer and pass on its replyToStaff text. If it's conditional ("only until 2"), say partial shifts go through their manager.
+- Swaps: when they want to trade a shift (they can still work, just not that one), call my-shifts, confirm which shift, then find-swaps. Offer up to 3 options in plain words ("Zoe's Fri 06:30–14:30 opener"). Only call request-swap after they pick one, and pass their reason as note. Tell them the teammate will be asked, then their manager confirms. If there are no options, suggest asking their manager or, if they can't work at all, reporting it.
+- If they answer a swap request a teammate sent them, call respond-to-swap and pass on replyToStaff. my-shifts lists their open swaps; cancel-swap withdraws theirs.
 - If the request is anything else, say their manager handles it.
 - Reply in short plain text. No markdown tables or headings.`,
 
@@ -82,10 +93,21 @@ You can do three things for them: show their upcoming shifts (my-shifts), record
     const known = await findStaffByChat(chatId);
     if (!known) return { handled: true, responseText: UNKNOWN_SENDER };
 
+    // A clear YES/NO answers whichever question they were sent last: a cover
+    // offer or a teammate's swap request.
     const answer = YES.test(rawText) ? "yes" : NO.test(rawText) ? "no" : null;
-    if (answer) {
+    const ask = answer ? await latestAsk(known.staffId) : null;
+    if (answer && ask === "offer") {
       const response = await respondToOffer(known.staffId, answer);
       if (response.outcome !== "no_offer") {
+        notifyTeamChanged(response.teamId);
+        await deliver(response.messages);
+        return { handled: true, responseText: response.reply };
+      }
+    }
+    if (answer && ask === "swap") {
+      const response = await respondToSwap(known.staffId, answer);
+      if (response.outcome !== "no_swap") {
         notifyTeamChanged(response.teamId);
         await deliver(response.messages);
         return { handled: true, responseText: response.reply };

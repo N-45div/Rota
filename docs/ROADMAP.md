@@ -45,6 +45,7 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Send to staff (publish-week), night-before reminders, Automate menu | Done Nov 4 |
 | Rota brand: warm theme (cream, tomato, espresso), Fraunces headings, Rota mark and icons, branded sign-in page | Done Nov 4 |
 | Team page (`/staff`), Activity feed (`/activity`, plain-language log of what the manager, Rota, and staff did), last-team memory | Done Nov 4, live on production |
+| Shift swaps: staff ask on Telegram (Rota lists only swaps that pass the rules for both), teammate replies YES/NO, manager approves on the board (rules re-checked, both shifts change at once), both told on Telegram | Done Nov 4 (pulled forward from Nov 5), `scripts/swap-smoke.cjs` |
 
 ## Database: Supabase
 
@@ -82,7 +83,7 @@ Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-s
 | Oct 30 – Nov 2 | Done: scaffold, data model, rule checker, board with drag-and-drop, agent instructions, Telegram linking with limited staff identities, call-out flow (offers, YES/NO, next round), Vercel project linked to GitHub. |
 | **Tue Nov 3** | **Office hours 8:30 AM PT.** Connect Neon + keys → first live deploy, real bot, first real agent runs ("draft next week", a real call-out); fix what breaks. |
 | **Wed Nov 4** | Done: publish the week on Telegram, Automate menu, reminders; UI revamp (brand, Team page, Activity feed, sign-in). |
-| **Thu Nov 5** | **Office hours #2.** Shift swaps between staff (both agree, rules checked, manager approves). |
+| **Thu Nov 5** | **Office hours #2.** Swaps are done; real-phone test of call-outs and swaps on Telegram, fix what breaks. |
 | **Fri Nov 6** | Agent presence on the board, phone-width pass on the board, README. |
 | **Sat Nov 7** | Real-phone test with friends on Telegram, bug bash, **record the Clips demo**. |
 | **Sun Nov 8** | Buffer: fix, re-record if needed, write the submission description. |

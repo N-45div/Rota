@@ -129,6 +129,35 @@ export const staffNotices = pgTable("staff_notices", {
   orgId: text("org_id"),
 });
 
+// A shift swap between two staff members. The requester asks over Telegram,
+// the teammate agrees, then the manager approves and both shifts change at
+// once. status: asked (waiting for the teammate), agreed (waiting for the
+// manager), approved, declined (teammate said no), rejected (manager said
+// no), cancelled (requester withdrew), closed (no longer valid; see reason).
+export const swapRequests = pgTable("swap_requests", {
+  id: text("id").primaryKey(),
+  teamId: text("team_id").notNull(),
+  requesterId: text("requester_id").notNull(),
+  requesterShiftId: text("requester_shift_id").notNull(),
+  peerId: text("peer_id").notNull(),
+  peerShiftId: text("peer_shift_id").notNull(),
+  status: text("status", {
+    enum: ["asked", "agreed", "approved", "declined", "rejected", "cancelled", "closed"],
+  })
+    .notNull()
+    .default("asked"),
+  note: text("note"),
+  reason: text("reason"),
+  createdAt: text("created_at")
+    .notNull()
+    .default(sql`now()`),
+  answeredAt: text("answered_at"),
+  decidedAt: text("decided_at"),
+  decidedBy: text("decided_by"),
+  ownerEmail: text("owner_email").notNull(),
+  orgId: text("org_id"),
+});
+
 // What happened on a team, in plain words, for the Activity feed. actorKind
 // says who did it: the manager, Rota (the agent or an automation), or a staff
 // member over Telegram.

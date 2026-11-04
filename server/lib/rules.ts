@@ -248,6 +248,33 @@ export function rankCandidates(input: Omit<CheckInput, "staff"> & { staff: RuleS
     );
 }
 
+export interface SwapInput {
+  /** The person asking, and the shift they give up. */
+  a: RuleStaff;
+  aShift: RuleShift;
+  /** The teammate, and the shift they give up. */
+  b: RuleStaff;
+  bShift: RuleShift;
+  shifts: RuleShift[];
+  availability: RuleAvailability[];
+  timeZone: string;
+}
+
+/**
+ * Check a swap as one change: `a` takes `bShift` and `b` takes `aShift` at
+ * the same time, so each person's hours and overlaps count the shift they
+ * give away as gone.
+ */
+export function checkSwap({ a, aShift, b, bShift, shifts, availability, timeZone }: SwapInput): Violation[] {
+  const after = shifts.map((shift) =>
+    shift.id === aShift.id ? { ...shift, staffId: b.id } : shift.id === bShift.id ? { ...shift, staffId: a.id } : shift,
+  );
+  return [
+    ...checkAssignment({ shift: { ...bShift, staffId: a.id }, staff: a, shifts: after, availability, timeZone }),
+    ...checkAssignment({ shift: { ...aShift, staffId: b.id }, staff: b, shifts: after, availability, timeZone }),
+  ];
+}
+
 export function round(value: number): number {
   return Math.round(value * 10) / 10;
 }

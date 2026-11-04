@@ -5,6 +5,7 @@ import {
 import { useT } from "@agent-native/core/client/i18n";
 import {
   IconAlertTriangle,
+  IconArrowsExchange,
   IconBrandTelegram,
   IconCheck,
   IconLock,
@@ -187,6 +188,12 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                   <IconAlertTriangle
                     className="size-3.5 text-amber-500"
                     aria-label={t("roster.hasWarning")}
+                  />
+                ) : null}
+                {shift.swap ? (
+                  <IconArrowsExchange
+                    className={cn("size-3.5", shift.swap.status === "agreed" ? "text-primary" : "text-muted-foreground")}
+                    aria-label={shift.swap.status === "agreed" ? t("swaps.chipWaitingYou") : t("swaps.chipAsked")}
                   />
                 ) : null}
                 {shift.locked ? (

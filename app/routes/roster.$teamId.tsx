@@ -22,6 +22,7 @@ import { Link, useParams, useSearchParams } from "react-router";
 import { toast } from "sonner";
 
 import { RosterBoard } from "@/components/roster/RosterBoard";
+import { SwapRequests } from "@/components/roster/SwapRequests";
 import { shiftDate, weekRangeLabel } from "@/components/roster/roster-types";
 import { useRosterMutations } from "@/components/roster/use-roster-mutations";
 import {
@@ -222,6 +223,8 @@ export default function RosterWeekRoute() {
           )}
         </div>
       </div>
+
+      <SwapRequests swaps={data.swaps} />
 
       <RosterBoard roster={data} mutations={mutations} />
 

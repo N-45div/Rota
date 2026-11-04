@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   checkAssignment,
+  checkSwap,
   hasBlocking,
   rankCandidates,
   type RuleAvailability,
@@ -112,6 +113,46 @@ describe("rankCandidates", () => {
       ["Maya", true],
       ["Ana", true],
       ["Leo", false],
+    ]);
+  });
+});
+
+describe("checkSwap", () => {
+  const zoe: RuleStaff = { id: "zoe", name: "Zoe", roles: ["barista"], maxHours: 40, active: true };
+
+  it("counts the shift each person gives away, so a full week can still swap", () => {
+    // Maya is at her 16h max; trading 8h for 8h keeps her at 16h.
+    const shifts = [
+      shift("mon", "2026-11-09", "07:00", "15:00", "maya"),
+      shift("tue", "2026-11-10", "07:00", "15:00", "maya"),
+      shift("wed", "2026-11-11", "07:00", "15:00", "zoe"),
+    ];
+    const plain = checkAssignment({ shift: { ...shifts[2]!, staffId: "maya" }, staff: maya, shifts, availability: [], timeZone: TZ });
+    expect(plain.map((v) => v.code)).toContain("over_max_hours");
+    const swap = checkSwap({ a: maya, aShift: shifts[1]!, b: zoe, bShift: shifts[2]!, shifts, availability: [], timeZone: TZ });
+    expect(hasBlocking(swap)).toBe(false);
+  });
+
+  it("refuses a swap that double-books either person", () => {
+    const shifts = [
+      shift("maya-tue", "2026-11-10", "07:00", "15:00", "maya"),
+      shift("maya-wed", "2026-11-11", "12:00", "18:00", "maya"),
+      shift("zoe-wed", "2026-11-11", "07:00", "15:00", "zoe"),
+    ];
+    const swap = checkSwap({ a: maya, aShift: shifts[0]!, b: zoe, bShift: shifts[2]!, shifts, availability: [], timeZone: TZ });
+    expect(swap.find((v) => v.code === "double_booked")?.message).toContain("Maya");
+    expect(hasBlocking(swap, true)).toBe(true);
+  });
+
+  it("flags a missing skill on either side", () => {
+    const shifts = [
+      shift("leo-mon", "2026-11-09", "07:00", "15:00", "leo", "kitchen"),
+      shift("zoe-tue", "2026-11-10", "07:00", "15:00", "zoe"),
+    ];
+    const swap = checkSwap({ a: leo, aShift: shifts[0]!, b: zoe, bShift: shifts[1]!, shifts, availability: [], timeZone: TZ });
+    expect(swap.filter((v) => v.code === "missing_skill").map((v) => v.message)).toEqual([
+      "Leo isn't trained as barista.",
+      "Zoe isn't trained as kitchen.",
     ]);
   });
 });

@@ -139,6 +139,30 @@ CREATE INDEX IF NOT EXISTS staff_notices_team_idx ON staff_notices (team_id, kin
 );
 CREATE INDEX IF NOT EXISTS activity_team_at_idx ON activity (team_id, at DESC)`,
     },
+    {
+      version: 6,
+      name: "swap-requests",
+      sql: `CREATE TABLE IF NOT EXISTS swap_requests (
+  id TEXT PRIMARY KEY,
+  team_id TEXT NOT NULL REFERENCES teams(id),
+  requester_id TEXT NOT NULL REFERENCES staff(id),
+  requester_shift_id TEXT NOT NULL REFERENCES shifts(id),
+  peer_id TEXT NOT NULL REFERENCES staff(id),
+  peer_shift_id TEXT NOT NULL REFERENCES shifts(id),
+  status TEXT NOT NULL DEFAULT 'asked' CHECK (status IN ('asked', 'agreed', 'approved', 'declined', 'rejected', 'cancelled', 'closed')),
+  note TEXT,
+  reason TEXT,
+  created_at TEXT NOT NULL DEFAULT (now()),
+  answered_at TEXT,
+  decided_at TEXT,
+  decided_by TEXT,
+  owner_email TEXT NOT NULL,
+  org_id TEXT
+);
+CREATE INDEX IF NOT EXISTS swap_requests_team_idx ON swap_requests (team_id, status);
+CREATE INDEX IF NOT EXISTS swap_requests_peer_idx ON swap_requests (peer_id, status, created_at);
+CREATE INDEX IF NOT EXISTS swap_requests_requester_idx ON swap_requests (requester_id, status, created_at)`,
+    },
   ],
   { table: "rota_app_migrations" },
 );

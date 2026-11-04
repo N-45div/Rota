@@ -6,12 +6,13 @@ import { getDb } from "../server/db/index.js";
 import { offersForShifts } from "../server/lib/cover.js";
 import { weekPublishedAt } from "../server/lib/notices.js";
 import { loadRosterContext, presentShift, requireTeam } from "../server/lib/roster.js";
+import { listSwaps } from "../server/lib/swaps.js";
 import { checkAssignment, describeRule, round, weeklyHours, type Violation } from "../server/lib/rules.js";
 import { addDays, DATE_RE, localParts, mondayOf, todayIn, weekBounds } from "../server/lib/time.js";
 
 export default defineAction({
   description:
-    "Read one team's weekly roster: staff (skills, max hours, hours this week, availability rules, notes), every shift in local time with any rule issues and Telegram cover offers, and open-shift counts. Start here before drafting or changing a week.",
+    "Read one team's weekly roster: staff (skills, max hours, hours this week, availability rules, notes), every shift in local time with any rule issues and Telegram cover offers, open shift swaps (status 'agreed' waits for the manager: decide-swap), and open-shift counts. Start here before drafting or changing a week.",
   access: {
     scope: "resource",
     resource: { type: "team", idFrom: "teamId", level: "viewer" },
@@ -50,12 +51,27 @@ export default defineAction({
     });
 
     const offers = await offersForShifts(db, weekShifts.map((shift) => shift.id));
+    const weekIds = new Set(weekShifts.map((shift) => shift.id));
+    const swaps = (await listSwaps(db, team)).filter(
+      (swap) => weekIds.has(swap.requesterShift.id) || weekIds.has(swap.peerShift.id),
+    );
+    const swapByShift = new Map<string, { id: string; status: string }>();
+    for (const swap of swaps) {
+      swapByShift.set(swap.requesterShift.id, { id: swap.id, status: swap.status });
+      swapByShift.set(swap.peerShift.id, { id: swap.id, status: swap.status });
+    }
     const shifts = weekShifts.map((shift) => {
       const person = shift.staffId ? staffById.get(shift.staffId) : undefined;
       const issues: Violation[] = person
         ? checkAssignment({ shift, staff: person, shifts: ctx.shifts, availability: ctx.availability, timeZone: tz })
         : [];
-      return { ...presentShift(shift, tz), staffName: person?.name ?? null, issues, offers: offers.get(shift.id) ?? [] };
+      return {
+        ...presentShift(shift, tz),
+        staffName: person?.name ?? null,
+        issues,
+        offers: offers.get(shift.id) ?? [],
+        swap: swapByShift.get(shift.id) ?? null,
+      };
     });
 
     const staff = ctx.staff.map((person) => ({
@@ -79,6 +95,17 @@ export default defineAction({
       team: { id: team.id, name: team.name, timezone: tz },
       weekStart,
       publishedAt: await weekPublishedAt(team.id, weekStart),
+      swaps: swaps.map((swap) => ({
+        id: swap.id,
+        status: swap.status as "asked" | "agreed",
+        note: swap.note,
+        requester: swap.requester.name,
+        peer: swap.peer.name,
+        requesterShiftId: swap.requesterShift.id,
+        requesterShift: swap.requesterShift.label,
+        peerShiftId: swap.peerShift.id,
+        peerShift: swap.peerShift.label,
+      })),
       days: Array.from({ length: 7 }, (_, index) => addDays(weekStart, index)),
       today: todayIn(tz),
       staff,
