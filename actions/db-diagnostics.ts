@@ -1,5 +1,5 @@
 import { defineAction } from "@agent-native/core/action";
-import { createDbExec } from "@agent-native/core/db";
+import { createDbExec, getRuntimeDatabaseUrl } from "@agent-native/core/db";
 import { z } from "zod";
 
 import { requireUser } from "../server/lib/roster.js";
@@ -17,7 +17,7 @@ export default defineAction({
   run: async (_args, ctx) => {
     requireUser(ctx);
     const started = Date.now();
-    const exec = await createDbExec();
+    const exec = await createDbExec({ url: getRuntimeDatabaseUrl() });
     try {
       const sessions = await exec.execute(`
         select pid, usename, application_name, client_addr::text as client, state, wait_event_type, wait_event,
