@@ -77,7 +77,7 @@ You can: show their upcoming shifts (my-shifts), record a day they can't work (r
         return {
           handled: true,
           responseText: linked
-            ? `Hi ${linked.staffName.split(" ")[0]}! You're connected to ${linked.teamName}. Message me here if you can't make a shift, or ask "what are my shifts?"`
+            ? `Hi ${linked.staffName.split(" ")[0]}! You're connected to ${linked.teamName}. Message me here if you can't make a shift or want to swap one, or ask "what are my shifts?"`
             : "That invite has expired or was already used. Ask your manager for a new one.",
         };
       }
@@ -85,7 +85,7 @@ You can: show their upcoming shifts (my-shifts), record a day they can't work (r
       return {
         handled: true,
         responseText: existing
-          ? `Hi ${existing.staffName.split(" ")[0]}! Ask me about your shifts, or tell me if you can't make one.`
+          ? `Hi ${existing.staffName.split(" ")[0]}! Ask me about your shifts, tell me if you can't make one, or ask to swap one with a teammate.`
           : UNKNOWN_SENDER,
       };
     }

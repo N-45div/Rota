@@ -2,7 +2,7 @@ import { useActionQuery, useDbSync } from "@agent-native/core/client/hooks";
 import { useT } from "@agent-native/core/client/i18n";
 import { useSession } from "@agent-native/core/client/use-session";
 import { useSetPageTitle } from "@agent-native/toolkit/app-shell";
-import { IconBrandTelegram, IconClock, IconSparkles, IconUser, type Icon } from "@tabler/icons-react";
+import { IconArrowRight, IconBrandTelegram, IconClock, IconSparkles, IconUser, type Icon } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router";
@@ -165,6 +165,15 @@ export default function ActivityPage() {
                         </time>
                       </p>
                       <p className="mt-0.5 text-sm leading-relaxed">{entry.text}</p>
+                      {entry.week ? (
+                        <Link
+                          to={`/roster/${data.teamId}?week=${entry.week}`}
+                          className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          {t("activity.openWeek")}
+                          <IconArrowRight className="size-3" aria-hidden />
+                        </Link>
+                      ) : null}
                     </div>
                   </li>
                 ))}

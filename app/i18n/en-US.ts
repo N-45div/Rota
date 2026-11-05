@@ -156,6 +156,7 @@ const messages = {
     you: "You",
     system: "Rota",
     showMore: "Show more",
+    openWeek: "See on the roster",
     emptyTitle: "Nothing yet",
     emptyBody: "Call-outs, cover offers, drafts, and changes will show up here as they happen.",
     agentEmptyState: "Ask me what happened, or what still needs your attention.",

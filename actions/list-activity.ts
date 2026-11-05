@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getDb } from "../server/db/index.js";
 import { recentActivity } from "../server/lib/activity.js";
 import { requireTeam } from "../server/lib/roster.js";
+import { localParts, mondayOf } from "../server/lib/time.js";
 
 export default defineAction({
   description:
@@ -20,6 +21,11 @@ export default defineAction({
   readOnly: true,
   run: async ({ teamId, limit }) => {
     const team = await requireTeam(getDb(), teamId);
-    return { teamId: team.id, team: team.name, timezone: team.timezone, entries: await recentActivity(team.id, limit) };
+    const entries = (await recentActivity(team.id, limit)).map(({ shiftStartsAt, ...entry }) => ({
+      ...entry,
+      // The roster week the entry's shift is in, so the feed can link to it.
+      week: shiftStartsAt ? mondayOf(localParts(shiftStartsAt, team.timezone).date) : null,
+    }));
+    return { teamId: team.id, team: team.name, timezone: team.timezone, entries };
   },
 });

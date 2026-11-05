@@ -2,7 +2,7 @@
 // staff did on a team. Logging never blocks or fails the change it describes.
 
 import { recordChange } from "@agent-native/core/server";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { getDb, schema } from "../db/index.js";
 import type { Executor } from "./roster.js";
@@ -67,7 +67,7 @@ export function notifyTeamChanged(teamId: string | null | undefined): void {
 }
 
 export async function recentActivity(teamId: string, limit = 100) {
-  const { activity } = schema;
+  const { activity, shifts } = schema;
   return getDb()
     .select({
       id: activity.id,
@@ -77,8 +77,10 @@ export async function recentActivity(teamId: string, limit = 100) {
       kind: activity.kind,
       text: activity.text,
       shiftId: activity.shiftId,
+      shiftStartsAt: shifts.startsAt,
     })
     .from(activity)
+    .leftJoin(shifts, and(eq(shifts.id, activity.shiftId), eq(shifts.teamId, activity.teamId)))
     .where(eq(activity.teamId, teamId))
     .orderBy(desc(activity.at))
     .limit(limit);
