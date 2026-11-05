@@ -46,6 +46,8 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Rota brand: warm theme (cream, tomato, espresso), Fraunces headings, Rota mark and icons, branded sign-in page | Done Nov 4 |
 | Team page (`/staff`), Activity feed (`/activity`, plain-language log of what the manager, Rota, and staff did), last-team memory | Done Nov 4, live on production |
 | Shift swaps: staff ask on Telegram (Rota lists only swaps that pass the rules for both), teammate replies YES/NO, manager approves on the board (rules re-checked, both shifts change at once), both told on Telegram | Done Nov 4 (pulled forward from Nov 5), `scripts/swap-smoke.cjs` |
+| Production stalls after idle (8–16 s hangs, board failing to load) | Fixed Nov 6 with a framework patch; see "Framework patch" below |
+| Board on phones, live glow on shifts that change, "Rota is working" pill, Activity links to the roster week | Done Nov 6 |
 
 ## Database: Supabase
 
@@ -60,6 +62,23 @@ Put both in Vercel (project rota → Settings → Environment Variables, Sensiti
 Production + Preview) with the real database password. Never commit them.
 
 Model: `OPENAI_API_KEY` is set in Vercel; the framework picks OpenAI from it.
+
+### Framework patch (production reliability)
+
+`patches/@agent-native__core@0.222.2.patch` (applied by `pnpm install` via
+`pnpm-workspace.yaml` → `patchedDependencies`) fixes production stalls found on
+Nov 6, where requests hung 8–16 s and the board failed to load after a minute idle:
+
+- Fire-and-forget DB writes (durable sync events, run diagnostics) are
+  registered with Vercel's `waitUntil`, so an instance isn't frozen
+  mid-statement. Those half-finished writes left Supabase pooler sessions stuck
+  as "active, waiting for client" and wedged the instance's only connection.
+- Shared postgres-js pools in serverless swap in a fresh connection after more
+  than 10 s of wall-clock idle (`DB_IDLE_RECYCLE_MS`), and right after any query
+  timeout, so a retry never reuses a wedged connection.
+
+When upgrading `@agent-native/core`, re-check whether the framework fixed this
+upstream; if not, re-create the patch with `pnpm patch @agent-native/core`.
 
 ## Telegram setup (once per deployment)
 
@@ -84,7 +103,7 @@ Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-s
 | **Tue Nov 3** | **Office hours 8:30 AM PT.** Connect Neon + keys → first live deploy, real bot, first real agent runs ("draft next week", a real call-out); fix what breaks. |
 | **Wed Nov 4** | Done: publish the week on Telegram, Automate menu, reminders; UI revamp (brand, Team page, Activity feed, sign-in). |
 | **Thu Nov 5** | **Office hours #2.** Swaps are done; real-phone test of call-outs and swaps on Telegram, fix what breaks. |
-| **Fri Nov 6** | Agent presence on the board, phone-width pass on the board, README. |
+| **Fri Nov 6** | Done: production stall fix, phone-width board, agent presence (working pill, live glow), Activity links. Open: README (needs owner's OK). |
 | **Sat Nov 7** | Real-phone test with friends on Telegram, bug bash, **record the Clips demo**. |
 | **Sun Nov 8** | Buffer: fix, re-record if needed, write the submission description. |
 | **Mon Nov 9** | **Submit by noon PT** and confirm receipt. |
