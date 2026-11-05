@@ -1,8 +1,8 @@
 diff --git a/dist/db/client.js b/dist/db/client.js
-index d31acc7a3832e2ca682765444d685831c58303e1..2b832e392a20de7b1fe0eb1072b48c6cfde44fdb 100644
+index d31acc7a3832e2ca682765444d685831c58303e1..e6d8db61b38f5cce6de1864c00b081343d32ce7e 100644
 --- a/dist/db/client.js
 +++ b/dist/db/client.js
-@@ -1252,10 +1252,92 @@ export function sharedDbPool(driver, url, create) {
+@@ -1252,10 +1252,101 @@ export function sharedDbPool(driver, url, create) {
          _sharedDbPools.set(key, facade);
          return facade;
      }
@@ -57,13 +57,20 @@ index d31acc7a3832e2ca682765444d685831c58303e1..2b832e392a20de7b1fe0eb1072b48c6c
 +            result = inner[method](...args);
 +        }
 +        catch (err) {
-+            held--;
++            held = Math.max(0, held - 1);
 +            throw err;
 +        }
 +        return Promise.resolve(result).finally(() => {
-+            held--;
++            held = Math.max(0, held - 1);
 +            lastUse = Date.now();
 +        });
++    };
++    // A query on this pool timed out: its connection may be wedged in the
++    // pooler, so stop using it now rather than after the next idle gap.
++    const renewNow = () => {
++        lastUse = 0;
++        held = 0;
++        renewIfIdle();
 +    };
 +    return new Proxy(function freshPostgresPool() { }, {
 +        apply(_target, _thisArg, args) {
@@ -71,6 +78,8 @@ index d31acc7a3832e2ca682765444d685831c58303e1..2b832e392a20de7b1fe0eb1072b48c6c
 +            return inner(...args);
 +        },
 +        get(_target, prop) {
++            if (prop === "__rotaRenewNow")
++                return renewNow;
 +            if (prop === "begin")
 +                return holding("begin");
 +            if (prop === "end")
@@ -96,3 +105,57 @@ index d31acc7a3832e2ca682765444d685831c58303e1..2b832e392a20de7b1fe0eb1072b48c6c
  export function replaceSharedDbPool(driver, url, previous, next) {
      const key = requestScopedPoolKey(driver, url);
      const facade = _sharedDbPools.get(key);
+@@ -1627,6 +1718,10 @@ async function createDbExecInternal(config = {}, trackSingletonResources = false
+             : createPool();
+         const getPool = () => resolveSharedDbPool("postgres-js", url, pool);
+         const recyclePool = (timedOutPool) => {
++            if (typeof timedOutPool?.__rotaRenewNow === "function") {
++                timedOutPool.__rotaRenewNow();
++                return;
++            }
+             if (getPool() === timedOutPool) {
+                 const replacement = createPool();
+                 if (isRequestScopedPoolFacade(pool)) {
+diff --git a/dist/db/create-get-db.js b/dist/db/create-get-db.js
+index faa3233ac7a4a70bd2df599a7ebf6c6075caf758..5b455bf4d005e11f2f2a084c5a3bea2f19baf896 100644
+--- a/dist/db/create-get-db.js
++++ b/dist/db/create-get-db.js
+@@ -649,6 +649,8 @@ export function buildResilientPostgresJsClient(client, getActivePool = () => cli
+                 catch {
+                     // ignore — cancellation is advisory
+                 }
++                // [rota patch] The retry must not reuse a wedged connection.
++                client.__rotaRenewNow?.();
+             }, { sql: query });
+         };
+         const execute = async (mode) => {
+diff --git a/dist/db/request-pool-context.js b/dist/db/request-pool-context.js
+index 44ab5b869a6f66c2c632f362ac3703b6d5f9dd86..13ab2a58e982af59be8b6295cd44b5271b9c8a7d 100644
+--- a/dist/db/request-pool-context.js
++++ b/dist/db/request-pool-context.js
+@@ -67,7 +67,25 @@ export function getCurrentRequestDbPoolScope() {
+  * Keeps the request pool that owns a shared initialization promise alive until
+  * its work settles, even if the request stops awaiting it first.
+  */
++/**
++ * [rota patch] Fire-and-forget database writes (durable sync events, run
++ * diagnostics) must finish before a Vercel instance is frozen; a write cut off
++ * mid-protocol leaves its pooler session stuck and stalls every later query
++ * on that connection. Register them with the platform's waitUntil.
++ */
++function keepServerlessAliveFor(promise) {
++    try {
++        const context = globalThis[Symbol.for("@vercel/request-context")]?.get?.();
++        if (typeof context?.waitUntil === "function") {
++            context.waitUntil(Promise.resolve(promise).catch(() => { }));
++        }
++    }
++    catch {
++        // Not on Vercel, or no request in flight: nothing to extend.
++    }
++}
+ export function retainRequestDbPoolScope(promise) {
++    keepServerlessAliveFor(promise);
+     const scope = storage.getStore();
+     if (!scope)
+         return promise;
