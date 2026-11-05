@@ -165,6 +165,7 @@ const messages = {
   },
   roster: {
     nav: "Roster",
+    agentWorking: "Rota is working on it…",
     agentEmptyState: "I'm your shift manager. Ask me to draft a week, find cover, or change someone's availability.",
     suggestDraft: "Draft next week's roster",
     suggestCallout: "Maya is sick tomorrow. Who can cover her shift?",

@@ -1,4 +1,4 @@
-import { sendToAgentChat } from "@agent-native/core/client/agent-chat";
+import { sendToAgentChat, useAgentChatGenerating } from "@agent-native/core/client/agent-chat";
 import {
   actionErrorMessage,
   deleteClientAppState,
@@ -60,6 +60,8 @@ export default function RosterWeekRoute() {
     onError: (error) => toast.error(actionErrorMessage(error) ?? t("roster.publishFailed")),
   });
   const queryClient = useQueryClient();
+  // Any agent run in this browser: show it on the board and don't start a second one.
+  const [agentWorking] = useAgentChatGenerating();
 
   // Staff can change shifts by message and the agent can work in the
   // background, so the board must update while it is open.
@@ -186,6 +188,15 @@ export default function RosterWeekRoute() {
                 .join(" · ")}
           {sentAt ? <span className="ml-2 text-xs">· {t("roster.sentAt", { when: sentAt })}</span> : null}
         </p>
+        {agentWorking ? (
+          <span
+            role="status"
+            className="flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+          >
+            <IconSparkles className="size-3.5 animate-pulse" aria-hidden />
+            {t("roster.agentWorking")}
+          </span>
+        ) : null}
 
         <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
           <DropdownMenu>
@@ -211,12 +222,12 @@ export default function RosterWeekRoute() {
             {publish.isPending ? t("roster.sending") : sentAt ? t("roster.resend") : t("roster.sendToStaff")}
           </Button>
           {open > 0 ? (
-            <Button className="h-9 flex-1 gap-2 sm:flex-none" onClick={draftWithAgent}>
+            <Button className="h-9 flex-1 gap-2 sm:flex-none" disabled={agentWorking} onClick={draftWithAgent}>
               <IconSparkles className="size-4" />
               {t("roster.fillWithAgent", { count: open })}
             </Button>
           ) : (
-            <Button variant="outline" className="h-9 flex-1 gap-2 sm:flex-none" onClick={reviewWithAgent}>
+            <Button variant="outline" className="h-9 flex-1 gap-2 sm:flex-none" disabled={agentWorking} onClick={reviewWithAgent}>
               <IconSparkles className="size-4" />
               {t("roster.reviewWithAgent")}
             </Button>
