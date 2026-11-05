@@ -187,12 +187,12 @@ export default function RosterWeekRoute() {
           {sentAt ? <span className="ml-2 text-xs">· {t("roster.sentAt", { when: sentAt })}</span> : null}
         </p>
 
-        <div className="ml-auto flex items-center gap-2">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:ml-auto sm:w-auto">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-9 gap-1.5">
+              <Button variant="ghost" className="h-9 gap-1.5" aria-label={t("roster.automate")}>
                 <IconRepeat className="size-4" />
-                {t("roster.automate")}
+                <span className="hidden sm:inline">{t("roster.automate")}</span>
                 <IconChevronDown className="size-3.5 opacity-60" />
               </Button>
             </DropdownMenuTrigger>
@@ -211,12 +211,12 @@ export default function RosterWeekRoute() {
             {publish.isPending ? t("roster.sending") : sentAt ? t("roster.resend") : t("roster.sendToStaff")}
           </Button>
           {open > 0 ? (
-            <Button className="h-9 gap-2" onClick={draftWithAgent}>
+            <Button className="h-9 flex-1 gap-2 sm:flex-none" onClick={draftWithAgent}>
               <IconSparkles className="size-4" />
               {t("roster.fillWithAgent", { count: open })}
             </Button>
           ) : (
-            <Button variant="outline" className="h-9 gap-2" onClick={reviewWithAgent}>
+            <Button variant="outline" className="h-9 flex-1 gap-2 sm:flex-none" onClick={reviewWithAgent}>
               <IconSparkles className="size-4" />
               {t("roster.reviewWithAgent")}
             </Button>

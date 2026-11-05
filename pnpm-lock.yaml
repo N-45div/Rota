@@ -52,6 +52,11 @@ overrides:
 
 packageExtensionsChecksum: sha256-YybZdidAA15/x6R19t0W3iqnnd2bDOSW/FrgFtnFwiM=
 
+patchedDependencies:
+  '@agent-native/core@0.222.2':
+    hash: c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99
+    path: patches/@agent-native__core@0.222.2.patch
+
 importers:
 
   .:
@@ -61,13 +66,13 @@ importers:
         version: 0.222.2
       '@agent-native/core':
         specifier: 0.222.2
-        version: 0.222.2(73708450d7a5356e0d0209f8a20d72b3)
+        version: 0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3)
       '@agent-native/otel':
         specifier: latest
-        version: 0.1.29(@agent-native/core@0.222.2(73708450d7a5356e0d0209f8a20d72b3))
+        version: 0.1.29(@agent-native/core@0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3))
       '@agent-native/toolkit':
         specifier: ^0.222.2
-        version: 0.222.2(0f2aa080ad2011fb8507fa717e9cf29d)
+        version: 0.222.2(d03861e6ae139a7b572c37d1da01794f)
       '@ai-sdk/anthropic':
         specifier: ^3.0.71
         version: 3.0.137(zod@4.6.7)
@@ -5561,7 +5566,7 @@ snapshots:
       '@ag-ui/core': 0.0.59
       '@noble/hashes': 2.4.0
 
-  '@agent-native/core@0.222.2(73708450d7a5356e0d0209f8a20d72b3)':
+  '@agent-native/core@0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3)':
     dependencies:
       '@agent-native/agentkit': 0.222.2
       '@agent-native/recap-cli': 0.5.93
@@ -5688,9 +5693,9 @@ snapshots:
       - vitest
       - vue
 
-  '@agent-native/otel@0.1.29(@agent-native/core@0.222.2(73708450d7a5356e0d0209f8a20d72b3))':
+  '@agent-native/otel@0.1.29(@agent-native/core@0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3))':
     dependencies:
-      '@agent-native/core': 0.222.2(73708450d7a5356e0d0209f8a20d72b3)
+      '@agent-native/core': 0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3)
       '@opentelemetry/api': 1.10.0
       '@opentelemetry/context-async-hooks': 2.12.0(@opentelemetry/api@1.10.0)
       '@opentelemetry/exporter-metrics-otlp-proto': 0.222.0(@opentelemetry/api@1.10.0)
@@ -5701,7 +5706,7 @@ snapshots:
 
   '@agent-native/recap-cli@0.5.93': {}
 
-  '@agent-native/toolkit@0.222.2(0f2aa080ad2011fb8507fa717e9cf29d)':
+  '@agent-native/toolkit@0.222.2(d03861e6ae139a7b572c37d1da01794f)':
     dependencies:
       '@agent-native/agentkit': 0.222.2
       '@assistant-ui/react': 0.12.28(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(ai@6.0.258(zod@4.6.7))(immer@11.2.9)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
@@ -5799,7 +5804,7 @@ snapshots:
       yjs: 13.6.33
       zod: 4.6.7
     optionalDependencies:
-      '@agent-native/core': 0.222.2(73708450d7a5356e0d0209f8a20d72b3)
+      '@agent-native/core': 0.222.2(patch_hash=c104a22c1643e8f1a9c3d4ac7197d983e365f61577bcd3d95a9b11501ab55d99)(73708450d7a5356e0d0209f8a20d72b3)
       '@xterm/addon-fit': 0.11.0
       '@xterm/addon-web-links': 0.12.0
       '@xterm/xterm': 6.0.0

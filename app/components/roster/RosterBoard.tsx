@@ -173,7 +173,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                   : (person?.color ?? "var(--border)"),
               }}
             />
-            <span className="flex items-center gap-1 text-xs font-medium tabular-nums">
+            <span className="flex items-center gap-1 text-[11px] font-medium whitespace-nowrap tabular-nums sm:text-xs">
               {shift.start}–{shift.end}
               {shift.endsNextDay ? (
                 <sup className="text-[9px] text-muted-foreground">+1</sup>
@@ -204,7 +204,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                 ) : null}
               </span>
             </span>
-            <span className="flex min-w-0 items-center gap-1 text-[11px] text-muted-foreground">
+            <span className="flex min-w-0 flex-wrap items-center gap-x-1 text-[11px] text-muted-foreground">
               <span className="truncate capitalize">{shift.role}</span>
               {asking > 0 ? (
                 <span className="flex shrink-0 items-center gap-0.5 text-sky-600 dark:text-sky-400">
@@ -233,7 +233,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
 
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-card">
-      <div className="grid min-w-[1040px] grid-cols-[216px_repeat(7,minmax(0,1fr))]">
+      <div className="grid min-w-[876px] grid-cols-[120px_repeat(7,minmax(108px,1fr))] sm:min-w-[1040px] sm:grid-cols-[216px_repeat(7,minmax(0,1fr))]">
         {/* Day headers */}
         <div className="sticky left-0 z-10 border-b border-border bg-card" />
         {roster.days.map((date) => {
@@ -279,7 +279,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
         })}
 
         {/* Open shifts lane */}
-        <div className="sticky left-0 z-10 flex items-center gap-2 border-b border-border bg-card px-3 py-2">
+        <div className="sticky left-0 z-10 flex items-center gap-2 border-b border-border bg-card px-2 py-2 sm:px-3">
           <span className="text-sm font-medium">{t("roster.openShifts")}</span>
           {openCount > 0 ? (
             <span className="rounded-full bg-amber-100 px-1.5 text-[11px] font-medium text-amber-800 tabular-nums dark:bg-amber-900/40 dark:text-amber-300">
@@ -346,7 +346,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                     type="button"
                     aria-label={t("roster.staffDetails", { name: person.name })}
                     className={cn(
-                      "sticky left-0 z-10 flex items-center gap-2.5 border-b border-border bg-card px-3 py-2 text-left transition-colors hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset",
+                      "sticky left-0 z-10 flex items-center gap-2.5 border-b border-border bg-card px-2 py-2 text-left transition-colors sm:px-3 hover:bg-accent/40 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none focus-visible:ring-inset",
                       state === "eligible" &&
                         "bg-emerald-50 dark:bg-emerald-950/30",
                       state === "blocked" && "opacity-55",
@@ -354,7 +354,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
                     )}
                   >
                     <span
-                      className="flex size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white"
+                      className="hidden size-8 shrink-0 items-center justify-center rounded-full text-[11px] font-semibold text-white sm:flex"
                       style={{
                         background: person.color ?? "var(--muted-foreground)",
                       }}

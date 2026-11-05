@@ -1,0 +1,98 @@
+diff --git a/dist/db/client.js b/dist/db/client.js
+index d31acc7a3832e2ca682765444d685831c58303e1..2b832e392a20de7b1fe0eb1072b48c6cfde44fdb 100644
+--- a/dist/db/client.js
++++ b/dist/db/client.js
+@@ -1252,10 +1252,92 @@ export function sharedDbPool(driver, url, create) {
+         _sharedDbPools.set(key, facade);
+         return facade;
+     }
+-    const created = create();
++    const created = driver === "postgres-js" && isServerlessRuntime()
++        ? freshAfterIdlePostgresPool(create)
++        : create();
+     _sharedDbPools.set(key, created);
+     return created;
+ }
++/**
++ * [rota patch] A serverless instance is frozen between requests, and its
++ * monotonic clock stops while frozen, so postgres-js idle timers never fire.
++ * The pooled socket can die during the freeze (the pooler or the network
++ * drops it) and the next query hangs until the 8 s timeout, with every other
++ * request on the instance queued behind it. This wrapper looks at wall-clock
++ * time instead: when the pool has been idle longer than DB_IDLE_RECYCLE_MS
++ * (default 10 s) and holds no transaction, the next use gets a fresh pool and
++ * the old one is closed without waiting on its sockets.
++ */
++function freshAfterIdlePostgresPool(create) {
++    const raw = Number(process.env.DB_IDLE_RECYCLE_MS);
++    const idleMs = Number.isFinite(raw) && raw > 0 ? raw : 10_000;
++    let inner = create();
++    let lastUse = Date.now();
++    let held = 0;
++    const renewIfIdle = () => {
++        const now = Date.now();
++        if (held === 0 && now - lastUse > idleMs) {
++            const previous = inner;
++            const next = create();
++            try {
++                // Drizzle installs its type parsers on the client it was given.
++                Object.assign(next.options.parsers, previous.options.parsers);
++                Object.assign(next.options.serializers, previous.options.serializers);
++            }
++            catch {
++                // Parsers are best effort; the pool still works without them.
++            }
++            inner = next;
++            void Promise.resolve()
++                .then(() => previous.end({ timeout: 0 }))
++                .catch(() => { });
++        }
++        lastUse = now;
++    };
++    const holding = (method) => (...args) => {
++        renewIfIdle();
++        held++;
++        let result;
++        try {
++            result = inner[method](...args);
++        }
++        catch (err) {
++            held--;
++            throw err;
++        }
++        return Promise.resolve(result).finally(() => {
++            held--;
++            lastUse = Date.now();
++        });
++    };
++    return new Proxy(function freshPostgresPool() { }, {
++        apply(_target, _thisArg, args) {
++            renewIfIdle();
++            return inner(...args);
++        },
++        get(_target, prop) {
++            if (prop === "begin")
++                return holding("begin");
++            if (prop === "end")
++                return (...args) => inner.end(...args);
++            if (typeof inner[prop] !== "function")
++                return inner[prop];
++            return (...args) => {
++                if (prop === "unsafe" || prop === "file" || prop === "reserve")
++                    renewIfIdle();
++                // Read the method after renewing, so it runs on the current pool.
++                return inner[prop](...args);
++            };
++        },
++        set(_target, prop, value) {
++            inner[prop] = value;
++            return true;
++        },
++        has(_target, prop) {
++            return prop in inner;
++        },
++    });
++}
+ export function replaceSharedDbPool(driver, url, previous, next) {
+     const key = requestScopedPoolKey(driver, url);
+     const facade = _sharedDbPools.get(key);
