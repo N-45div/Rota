@@ -11,7 +11,7 @@ import {
   IconLock,
   IconPlus,
 } from "@tabler/icons-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -40,7 +40,29 @@ interface RosterBoardProps {
   mutations: ReturnType<typeof useRosterMutations>;
 }
 
+/**
+ * Shifts whose person changed while the board was open (a Telegram YES, an
+ * agent draft, an approved swap, a drag), so they can glow for a moment.
+ */
+function useJustChanged(roster: RosterBoardProps["roster"]) {
+  const previous = useRef<{ week: string; staff: Map<string, string | null> } | null>(null);
+  const [changed, setChanged] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    const staff = new Map(roster.shifts.map((shift) => [shift.id, shift.staffId]));
+    const before = previous.current;
+    previous.current = { week: roster.weekStart, staff };
+    if (!before || before.week !== roster.weekStart) return;
+    const ids = [...staff].filter(([id, who]) => before.staff.get(id) !== who).map(([id]) => id);
+    if (ids.length === 0) return;
+    setChanged(new Set(ids));
+    const timer = setTimeout(() => setChanged(new Set()), 2600);
+    return () => clearTimeout(timer);
+  }, [roster.shifts, roster.weekStart]);
+  return changed;
+}
+
 export function RosterBoard({ roster, mutations }: RosterBoardProps) {
+  const justChanged = useJustChanged(roster);
   const t = useT();
   const [dragging, setDragging] = useState<RosterShift | null>(null);
   const [dragCover, setDragCover] = useState<Map<string, Candidate> | null>(
@@ -162,6 +184,7 @@ export function RosterBoard({ roster, mutations }: RosterBoardProps) {
               problems.length > 0 && "border-destructive/60 bg-destructive/5",
               dragging?.id === shift.id && "opacity-40",
               !shift.locked && "cursor-grab active:cursor-grabbing",
+              justChanged.has(shift.id) && "rota-just-changed",
             )}
           >
             <span

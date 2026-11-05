@@ -294,3 +294,23 @@
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground) / 0.34);
 }
+
+/* A shift that changed while the board is open glows briefly. */
+@keyframes rota-just-changed {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.55);
+    background-color: hsl(var(--primary) / 0.14);
+  }
+  100% {
+    box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+  }
+}
+.rota-just-changed {
+  animation: rota-just-changed 2.4s ease-out 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rota-just-changed {
+    animation: none;
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.5);
+  }
+}
