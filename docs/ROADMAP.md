@@ -73,9 +73,15 @@ Nov 6, where requests hung 8–16 s and the board failed to load after a minute 
   registered with Vercel's `waitUntil`, so an instance isn't frozen
   mid-statement. Those half-finished writes left Supabase pooler sessions stuck
   as "active, waiting for client" and wedged the instance's only connection.
-- Shared postgres-js pools in serverless swap in a fresh connection after more
-  than 10 s of wall-clock idle (`DB_IDLE_RECYCLE_MS`), and right after any query
-  timeout, so a retry never reuses a wedged connection.
+- Shared postgres-js pools in serverless swap in a fresh connection right after
+  any query timeout, so a retry never reuses a wedged connection. (They can also
+  reconnect after wall-clock idle via `DB_IDLE_RECYCLE_MS`; production sets it to
+  1 hour, effectively off, since testing showed no benefit.)
+
+Production env also sets `DB_OP_TIMEOUT_MS=4000` (framework default 8000): Rota's
+queries take milliseconds, so a rare stalled connection is replaced after 4 s.
+Measured Nov 6, board loads with 1-minute gaps: before, 3 of 6 failed; after,
+0 of 6 failed, with an occasional one-off slow load that recovers on its own.
 
 When upgrading `@agent-native/core`, re-check whether the framework fixed this
 upstream; if not, re-create the patch with `pnpm patch @agent-native/core`.
