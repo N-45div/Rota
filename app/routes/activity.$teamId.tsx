@@ -202,9 +202,9 @@ function ActorAvatar({ entry }: { entry: Entry }) {
   const { icon: ActorIcon, className } = AVATAR[entry.actorKind];
   if (entry.actorKind === "staff") {
     return (
-      <span aria-hidden className="relative flex size-8 shrink-0 items-center justify-center rounded-full bg-secondary text-[11px] font-semibold text-secondary-foreground ring-4 ring-background">
+      <span aria-hidden className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-border bg-muted text-[11px] leading-none font-semibold text-foreground ring-4 ring-background">
         {initials(entry.actorName)}
-        <span className={cn("absolute -bottom-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full ring-2 ring-background", className)}>
+        <span className={cn("absolute -right-1.5 -bottom-1.5 flex size-[15px] items-center justify-center rounded-full ring-2 ring-background", className)}>
           <ActorIcon className="size-2.5" />
         </span>
       </span>

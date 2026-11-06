@@ -54,6 +54,14 @@ export interface Violation {
 
 export const MIN_REST_HOURS = 10;
 
+/** "Mon, Nov 9" for a YYYY-MM-DD date. */
+function friendlyDate(date: string): string {
+  const [y = 1970, m = 1, d = 1] = date.split("-").map(Number);
+  return new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric", timeZone: "UTC" }).format(
+    new Date(Date.UTC(y, m - 1, d, 12)),
+  );
+}
+
 export function parseRoles(value: string | null | undefined): string[] {
   return (value ?? "")
     .split(",")
@@ -153,7 +161,7 @@ export function checkAssignment({ shift, staff, shifts, availability, timeZone }
     violations.push({
       code: "double_booked",
       severity: "block",
-      message: `${staff.name} already works ${clash.role} ${start.date} ${start.time}–${end.time}.`,
+      message: `${staff.name} already works ${clash.role} ${friendlyDate(start.date)} ${start.time}–${end.time}.`,
     });
   }
 

@@ -48,6 +48,11 @@ function firstName(name: string) {
   return name.split(" ")[0] ?? name;
 }
 
+/** "an opener", "a barista". */
+function withArticle(word: string) {
+  return `${/^[aeiou]/i.test(word) ? "an" : "a"} ${word}`;
+}
+
 async function teamRow(tx: Executor, teamId: string) {
   const { teams } = schema;
   const [team] = await tx
@@ -132,7 +137,7 @@ export async function createOffers(
     messages.push({
       offerId,
       chatId: chatById.get(candidate.staffId)!,
-      text: `Hi ${firstName(candidate.name)}! Can you cover a ${shift.role} shift at ${team.name}?\n${describeShift(presented)}\nReply YES to take it or NO to pass.`,
+      text: `Hi ${firstName(candidate.name)}! Can you cover ${withArticle(shift.role)} shift at ${team.name}?\n${describeShift(presented)}\nReply YES to take it or NO to pass.`,
     });
   }
 
@@ -332,7 +337,7 @@ export async function respondToOffer(
     return {
       outcome: "assigned",
       teamId: team.id,
-      reply: `It's yours, ${name}! ${shift.role} · ${describeShift({ ...presented, staffId })}. Thanks for covering.`,
+      reply: `It's yours, ${name}! ${describeShift({ ...presented, staffId })} ${shift.role}. Thanks for covering.`,
       shift: { ...presented, staffId },
       messages,
       nextRound: null,
