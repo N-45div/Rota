@@ -1,33 +1,53 @@
-# Chat
+# Rota
 
-The minimal agent-native starter app — a clean, ChatGPT-style shell with chat at
-the center, durable threads, standard app navigation, auth, live sync, and
-actions. Start here when you want a real browser app to build on without
-committing to a domain template.
+**Your AI shift manager.** Rota builds the weekly staff roster with you, keeps
+it within your rules, and handles the phone side of scheduling (call-outs,
+cover, swaps) over Telegram while you watch the board.
 
-**Live app: [chat.agent-native.com](https://chat.agent-native.com?utm_source=github&utm_medium=referral&utm_content=chat-readme)**
+Live: https://rota-n45divs-projects.vercel.app
 
-Chat is the basic agent-native app starting point. It gives you the app-agent
-loop wired end to end and one example action, so you can add your own UI, data,
-and actions on top.
+Built with [Agent-Native](https://github.com/BuilderIO/agent-native) for the
+[Builder.io Agent-Native Hackathon](https://www.builder.io/hackathon): people
+and an agent working on the same roster.
 
-## Features
+## What it does
 
-- ChatGPT-style shell with a threads list and durable chat history.
-- Auth, live sync, and application state wired out of the box.
-- The action surface the agent and UI share, plus one example action to copy.
-- A minimal, brandable base for any domain app.
+- **Draft a fair week in seconds.** "Fill 30 open with agent" drafts the week
+  from skills, availability, max hours, and each person's notes ("prefers
+  mornings"), then explains anything it couldn't fill.
+- **Rules you can trust.** Every change goes through one rule checker, whether
+  it's a drag on the board, an agent tool call, or a staff reply: no
+  double-booking, skills, availability, weekly hours, rest between shifts.
+- **Call-outs on Telegram.** Staff text the bot "I'm sick tomorrow". Rota opens
+  the shift and asks the three best eligible teammates. The first YES gets it.
+- **Shift swaps.** Staff ask to trade a shift, and Rota only offers swaps that
+  pass the rules for both people. The teammate agrees, the manager approves on
+  the board, and both get a confirmation.
+- **Send the week.** Each person gets their own shifts on Telegram, plus a
+  reminder the night before.
+- **Activity feed.** A plain-language history of what the manager, Rota, and
+  staff did, linked back to the roster.
 
-## Develop locally
+## How people and the agent share the work
 
-Scaffold your own copy and run it:
+The board, the agent, and the Telegram bot all call the same actions
+(`actions/`). The agent sees what you're looking at (team, week, selected
+shift), so "who can cover this shift?" just works. Changes from Telegram or
+the agent show up on the open board within seconds, and the shifts that
+changed glow.
+
+## Run locally
 
 ```bash
-npx --yes @agent-native/core@latest create my-app --standalone --template chat
-cd my-app
-corepack enable
 pnpm install
 pnpm dev
 ```
 
-Full docs: [agent-native.com/docs/template-chat](https://agent-native.com/docs/template-chat?utm_source=github&utm_medium=referral&utm_content=chat-readme).
+Sign in with **Continue as local dev**, then **Load demo café**. Put
+`OPENAI_API_KEY` in `.env` to use the agent. Telegram setup and production
+notes are in `docs/ROADMAP.md`.
+
+## Stack
+
+Agent-Native (React Router, Drizzle), Postgres on Supabase, Vercel, and the
+Telegram Bot API.
