@@ -35,17 +35,17 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Scaffold (Chat template, standalone) | Done |
 | Data model: teams, staff, shifts, availability | Done |
 | Rule checker (double-booking, skills, availability, max hours, rest) + tests | Done |
-| Shared actions (get-roster, assign-shift(s), find-cover, shifts, staff, availability, seed) | Done, HTTP smoke test in `scripts/api-smoke.cjs` |
+| Shared actions (get-roster, assign-shift(s), find-cover, shifts, staff, availability, seed) | Done, HTTP smoke test in `scripts/smoke/api-smoke.cjs` |
 | Roster board: grid, open lane, popover with ranked cover, drag-and-drop with live eligibility | Done, browser-tested |
 | Agent instructions, context (team, week, selected shift), roster suggestions | Done; needs a real LLM run |
 | Telegram: staff invite links, staff identity, staff actions (`my-shifts`, `report-unavailable`), invite UI | Done, tested with simulated webhooks; needs a real bot token |
-| Call-out flow: sick report opens the shift, best 3 eligible asked on Telegram, YES/NO (instant, no model), first yes wins, next round on all-no, board shows "asking N" | Done, `scripts/callout-smoke.cjs` |
+| Call-out flow: sick report opens the shift, best 3 eligible asked on Telegram, YES/NO (instant, no model), first yes wins, next round on all-no, board shows "asking N" | Done, `scripts/smoke/callout-smoke.cjs` |
 | Live at https://rota-n45divs-projects.vercel.app (Vercel Pro, functions in Tokyo `hnd1`, Supabase Postgres Tokyo, OpenAI GPT-6 Luna) | Done Nov 3. First real agent run: "Fill 30 open" drafted 28/30 in 18 s via `draft-week` and explained the 2 it couldn't fill. |
 | Telegram on production (@Rotaagentbot) | Done Nov 4: webhook set, linking and the AI call-out path verified on production (sick message → shift opened in 7 s). Real-phone delivery test pending. |
 | Send to staff (publish-week), night-before reminders, Automate menu | Done Nov 4 |
 | Rota brand: warm theme (cream, tomato, espresso), Fraunces headings, Rota mark and icons, branded sign-in page | Done Nov 4 |
 | Team page (`/staff`), Activity feed (`/activity`, plain-language log of what the manager, Rota, and staff did), last-team memory | Done Nov 4, live on production |
-| Shift swaps: staff ask on Telegram (Rota lists only swaps that pass the rules for both), teammate replies YES/NO, manager approves on the board (rules re-checked, both shifts change at once), both told on Telegram | Done Nov 4 (pulled forward from Nov 5), `scripts/swap-smoke.cjs` |
+| Shift swaps: staff ask on Telegram (Rota lists only swaps that pass the rules for both), teammate replies YES/NO, manager approves on the board (rules re-checked, both shifts change at once), both told on Telegram | Done Nov 4 (pulled forward from Nov 5), `scripts/smoke/swap-smoke.cjs` |
 | Production stalls after idle (8–16 s hangs, board failing to load) | Fixed Nov 6 with a framework patch; see "Framework patch" below |
 | Board on phones, live glow on shifts that change, "Rota is working" pill, Activity links to the roster week | Done Nov 6 |
 
@@ -99,7 +99,7 @@ After rotating the token (BotFather `/revoke`): update `TELEGRAM_BOT_TOKEN` in V
 
 Telegram calls use the deployment's bot token from the environment in every context (`server/lib/telegram-adapter.ts`).
 
-Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-smoke.cjs` post fake Telegram updates.
+Local testing without a bot: `scripts/smoke/telegram-smoke.cjs` and `scripts/smoke/callout-smoke.cjs` post fake Telegram updates.
 
 ## Timeline to submission (deadline Nov 9)
 

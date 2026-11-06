@@ -1,7 +1,7 @@
 // Simulated Telegram flow: invite, /start linking, staff identity limits,
 // my-shifts and report-unavailable. Needs the dev server started with
 // TELEGRAM_BOT_TOKEN (any value) and TELEGRAM_BOT_USERNAME=RotaDemoBot, and
-// Telegram enabled. Usage: node scripts/telegram-smoke.cjs <cookie-file>
+// Telegram enabled. Usage: node scripts/smoke/telegram-smoke.cjs <cookie-file>
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 const COOKIE = fs.readFileSync(process.argv[2], 'utf8').trim();
@@ -22,7 +22,7 @@ async function telegram(chatId, text, firstName = 'Test') {
 function asStaff(principal, action, args) {
   if (!principal) return { ok: false, out: 'no principal' };
   try {
-    return { ok: true, out: execFileSync('pnpm', ['-s', 'action', action, ...args], { cwd: '/home/user/rota', env: { ...process.env, AGENT_USER_EMAIL: principal }, encoding: 'utf8', timeout: 90000 }) };
+    return { ok: true, out: execFileSync('pnpm', ['-s', 'action', action, ...args], { cwd: require('path').resolve(__dirname, '..', '..'), env: { ...process.env, AGENT_USER_EMAIL: principal }, encoding: 'utf8', timeout: 90000 }) };
   } catch (e) { return { ok: false, out: String(e.stdout || '') + String(e.stderr || '') }; }
 }
 const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
@@ -43,7 +43,7 @@ const ok = (c, m) => console.log((c ? 'PASS ' : 'FAIL ') + m);
   ok(r.staff.find(s => s.id === maya.id).hasTelegram, `/start links Maya's chat (webhook status ${s1})`);
 
   await telegram(5550002, `/start ${invite.code}`, 'Mallory');
-  const qOut = execFileSync('pnpm', ['-s', 'action', 'db-query', '--sql', `SELECT telegram_chat_id AS chat, telegram_principal AS principal, COALESCE(telegram_invite_code, 'none') AS code FROM staff WHERE id = '${maya.id}'`], { cwd: '/home/user/rota', encoding: 'utf8', timeout: 90000 });
+  const qOut = execFileSync('pnpm', ['-s', 'action', 'db-query', '--sql', `SELECT telegram_chat_id AS chat, telegram_principal AS principal, COALESCE(telegram_invite_code, 'none') AS code FROM staff WHERE id = '${maya.id}'`], { cwd: require('path').resolve(__dirname, '..', '..'), encoding: 'utf8', timeout: 90000 });
   const line = qOut.split('\n').find(l => /staff-|NULL/.test(l) && l.includes('|')) || '';
   const cells = line.split('|').map(c => c.trim());
   const row = { telegram_chat_id: cells[0], telegram_principal: cells[1], telegram_invite_code: cells[2] === 'none' ? null : cells[2] };

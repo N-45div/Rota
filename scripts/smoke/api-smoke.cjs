@@ -1,5 +1,5 @@
 // Smoke test for the roster actions over HTTP. Usage:
-//   node scripts/api-smoke.cjs <cookie-file> <teamId>
+//   node scripts/smoke/api-smoke.cjs <cookie-file> <teamId>
 // Run against a freshly seeded demo team (seed-demo-team).
 const fs = require('fs');
 const COOKIE = fs.readFileSync(process.argv[2], 'utf8').trim();

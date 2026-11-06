@@ -1,12 +1,12 @@
 // End-to-end call-out flow over simulated Telegram webhooks. Needs the dev
 // server started with TELEGRAM_BOT_TOKEN (any value) and Telegram enabled.
-// Usage: node scripts/callout-smoke.cjs <cookie-file>
+// Usage: node scripts/smoke/callout-smoke.cjs <cookie-file>
 // Call-out flow: sick report -> offers -> NO / YES / late YES; decline-all -> next round.
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 const COOKIE = fs.readFileSync(process.argv[2], 'utf8').trim();
 const BASE = 'http://127.0.0.1:8080';
-const ROTA = '/home/user/rota';
+const ROTA = require('path').resolve(__dirname, '..', '..');
 async function call(name, input, method = 'POST') {
   const url = method === 'GET' ? `${BASE}/_agent-native/actions/${name}?` + new URLSearchParams(input) : `${BASE}/_agent-native/actions/${name}`;
   const res = await fetch(url, { method, headers: { cookie: COOKIE, 'content-type': 'application/json', connection: 'close' }, body: method === 'GET' ? undefined : JSON.stringify(input) });

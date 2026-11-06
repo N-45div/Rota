@@ -1,38 +1,39 @@
 # Visual Design Contract
 
-Chat is a quiet, full-canvas conversation workbench. AgentKit owns the
-conversation primitives; the template owns the surrounding navigation and
-workspace chrome.
+Rota is a warm, café-floor scheduling board. The roster is the canvas; the
+agent works beside it in the AgentSidebar, and staff reach it through Telegram.
 
 ## Product mode
 
 - Mode: `operate`
-- Audience and cadence: frequent users managing many ongoing agent threads.
-- Primary workflow: begin, resume, pin, and organize conversations without
-  leaving the chat canvas.
+- Audience and cadence: managers of small hospitality and retail teams, checking
+  and changing the week several times a day, often on a phone.
+- Primary workflow: see the week at a glance, fill or fix shifts (by hand or
+  with the agent), and handle call-outs and swaps without leaving the board.
 
 ## Visual direction
 
-- Direction name: Quiet conversation library
-- Palette family: neutral ink and semantic surfaces; active rows use the
-  existing sidebar accent rather than a separate branded color.
-- Type treatment: dense sans-serif labels with regular-weight conversation
-  titles and restrained section labels.
-- Composition: a persistent conversation library beside a generous chat
-  canvas. New chat is the primary rail action, followed by Pinned and Recents.
-  Account, workspace, settings, and sign-out controls disclose from one footer
-  row instead of competing in the rail.
-- Shape language: borderless lists, soft selected rows, quiet corners, and
-  compact icon controls.
-- Anti-references: icon-only navigation as the default state, floating chips,
-  duplicated settings links, timestamps competing with thread titles, and
-  placeholder destinations that the app does not implement.
+- Direction name: Warm hospitality
+- Palette family: cream background, tomato primary (`--primary`), espresso
+  foreground; tokens live in `app/global.css` with an espresso dark theme. Each
+  staff member keeps their own color for their shifts.
+- Type treatment: Fraunces (`font-display`) for page titles and the wordmark,
+  the system sans for everything else; tabular numbers for times and hours.
+- Composition: sidebar with Roster, Team, Activity, and Ask Rota; the board is
+  staff rows × Mon–Sun with an open-shifts lane on top. Team is a card grid;
+  Activity is a timeline grouped by day.
+- Shape language: rounded cards and chips, soft borders, small colored bars
+  for people, tomato used sparingly for primary actions and agent presence.
+- Agent presence: the "Rota is working" pill, a brief glow on shifts that
+  change while the board is open, and sparkle icons on agent actions.
+- Anti-references: dense spreadsheet grids, cold blue SaaS chrome, modal-heavy
+  flows, and controls that duplicate what the agent can already do.
 
 ## Guardrails
 
-- Preserve the scaffold's semantic tokens and shared component seams.
-- Keep domain pages distinct from full-page chat and use the AgentSidebar for
-  contextual AI.
-- Compare sibling apps before reusing their palette or composition.
-- Keep pinning, rename, archive, and routing wired to the shared chat thread
-  model; the sidebar is a presentation layer, not a second history store.
+- Use the semantic tokens in `app/global.css`; don't hard-code colors outside
+  staff colors.
+- Every write goes through actions and the rule checker; the UI acknowledges
+  within 100 ms and shows the server's reason when a rule blocks a change.
+- Keep the board usable at phone width (no page-level horizontal scroll).
+- Keep contextual AI in the AgentSidebar; full-page chat stays at `/chat`.

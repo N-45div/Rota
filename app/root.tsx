@@ -26,7 +26,6 @@ import { AppToolkitProvider } from "@/components/ui/toolkit-provider";
 import { useNavigationState } from "@/hooks/use-navigation-state";
 import { APP_TITLE } from "@/lib/app-config";
 import {
-  HOME_PATH,
   isChatPathname,
   NEW_CHAT_PATH,
   skeletonLayoutForPath,
@@ -140,9 +139,9 @@ function AppContent() {
               {t("chat.newChat")}
             </CommandMenu.Item>
           ) : null}
-          {location.pathname !== HOME_PATH ? (
-            <CommandMenu.Item onSelect={() => navigate(HOME_PATH)}>
-              {t("navigation.home")}
+          {!location.pathname.startsWith("/roster") ? (
+            <CommandMenu.Item onSelect={() => navigate("/roster")}>
+              {t("roster.nav")}
             </CommandMenu.Item>
           ) : null}
           {!isChatPathname(location.pathname) ? (

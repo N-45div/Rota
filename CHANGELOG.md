@@ -1,29 +1,28 @@
 # Changelog
 
-All notable user-facing changes to this app are documented here.
+What's new in Rota.
 
-## 2026-10-10
+## 2026-11-06
 
-### Fixed
+- Production stays fast after quiet periods: fixed requests that could hang and
+  fail after the app sat idle.
+- The board works on phones.
+- Shifts glow when they change while you're watching (a Telegram reply, an agent
+  draft, an approved swap), and the board shows when Rota is working.
+- Activity entries link to their week on the roster.
 
-- Large prompts with full context remain available to retry when sending fails.
+## 2026-11-05
 
-## 2026-09-30
+- Shift swaps: staff ask on Telegram, the teammate agrees, you approve on the
+  board, and both get a confirmation. Rota only suggests swaps that fit the
+  rules for both people.
 
-### Improved
+## 2026-11-04
 
-- Chat uses a compact + menu with context submenus, keeps task, automation, and skill actions at the root, and omits Generate Image.
+- New Rota look, Team page, and Activity feed.
+- Send each person their week on Telegram, plus a reminder the night before.
 
-## 2026-09-27
+## 2026-11-03
 
-### Fixed
-
-- Chat retries the original request with its attachments after model setup.
-
-## 2026-08-27
-
-### Fixed
-
-- Chat includes the runtime packages needed for provider keys after deployment.
-
-For the full list of updates, see the [changelog folder](./changelog/).
+- Rota goes live: draft a week with the agent, call-outs and cover offers on
+  Telegram.

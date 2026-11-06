@@ -1,25 +1,13 @@
-import HomePage from "@/components/home/HomePage";
+import { Navigate } from "react-router";
+
 import { APP_TITLE } from "@/lib/app-config";
 
-const SEO_TITLE = `${APP_TITLE} - Open Source AI app starter with actions`;
-const SEO_DESCRIPTION =
-  "Open Source starter for agent-native apps with durable chat, shared actions, UI state, tools, and a backend your agent can extend.";
-
+// The chat routes reuse this page title.
 export function meta() {
-  return [
-    { title: SEO_TITLE },
-    {
-      name: "description",
-      content: SEO_DESCRIPTION,
-    },
-    { property: "og:title", content: SEO_TITLE },
-    { property: "og:description", content: SEO_DESCRIPTION },
-    { name: "twitter:card", content: "summary" },
-    { name: "twitter:title", content: SEO_TITLE },
-    { name: "twitter:description", content: SEO_DESCRIPTION },
-  ];
+  return [{ title: `Ask ${APP_TITLE}` }];
 }
 
+// The framework still links to /home in a few places; Rota's home is the roster.
 export default function HomeRoute() {
-  return <HomePage />;
+  return <Navigate to="/roster" replace />;
 }

@@ -1,13 +1,13 @@
 // End-to-end shift swaps over simulated Telegram webhooks. Needs the dev
 // server started with TELEGRAM_BOT_TOKEN (any value) and Telegram enabled.
-// Usage: node scripts/swap-smoke.cjs <cookie-file>
+// Usage: node scripts/smoke/swap-smoke.cjs <cookie-file>
 // Ask -> teammate YES -> manager approves (shifts trade); NO; stale swap; cancel;
 // a YES goes to whichever question (offer or swap) was asked last.
 const fs = require('fs');
 const { execFileSync } = require('child_process');
 const COOKIE = fs.readFileSync(process.argv[2], 'utf8').trim();
 const BASE = 'http://127.0.0.1:8080';
-const ROTA = '/home/user/rota';
+const ROTA = require('path').resolve(__dirname, '..', '..');
 async function call(name, input, method = 'POST') {
   const url = method === 'GET' ? `${BASE}/_agent-native/actions/${name}?` + new URLSearchParams(input) : `${BASE}/_agent-native/actions/${name}`;
   const res = await fetch(url, { method, headers: { cookie: COOKIE, 'content-type': 'application/json', connection: 'close' }, body: method === 'GET' ? undefined : JSON.stringify(input) });
