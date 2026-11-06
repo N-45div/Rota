@@ -109,7 +109,7 @@ Local testing without a bot: `scripts/telegram-smoke.cjs` and `scripts/callout-s
 | **Tue Nov 3** | **Office hours 8:30 AM PT.** Connect Neon + keys → first live deploy, real bot, first real agent runs ("draft next week", a real call-out); fix what breaks. |
 | **Wed Nov 4** | Done: publish the week on Telegram, Automate menu, reminders; UI revamp (brand, Team page, Activity feed, sign-in). |
 | **Thu Nov 5** | **Office hours #2.** Swaps are done; real-phone test of call-outs and swaps on Telegram, fix what breaks. |
-| **Fri Nov 6** | Done: production stall fix, phone-width board, agent presence (working pill, live glow), Activity links. Open: README (needs owner's OK). |
+| **Fri Nov 6** | Done: production stall fix, phone-width board, agent presence (working pill, live glow), Activity links, README. |
 | **Sat Nov 7** | Real-phone test with friends on Telegram, bug bash, **record the Clips demo**. |
 | **Sun Nov 8** | Buffer: fix, re-record if needed, write the submission description. |
 | **Mon Nov 9** | **Submit by noon PT** and confirm receipt. |
