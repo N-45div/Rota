@@ -48,6 +48,8 @@ Built for the Builder.io Agent-Native Hackathon. Deadline: **Mon Nov 9, 2026,
 | Shift swaps: staff ask on Telegram (Rota lists only swaps that pass the rules for both), teammate replies YES/NO, manager approves on the board (rules re-checked, both shifts change at once), both told on Telegram | Done Nov 4 (pulled forward from Nov 5), `scripts/smoke/swap-smoke.cjs` |
 | Production stalls after idle (8–16 s hangs, board failing to load) | Fixed Nov 6 with a framework patch; see "Framework patch" below |
 | Board on phones, live glow on shifts that change, "Rota is working" pill, Activity links to the roster week | Done Nov 6 |
+| Demo film (HyperFrames, real captures and bot messages), voiceover script, `demo-video` skill, Clips MCP connected | Done Nov 7–8. Upload to Clips is done by hand: the cloud sandbox's proxy blocks Clips' direct upload |
+| README rewrite and ARCHITECTURE.md with diagrams | Done Nov 8 |
 
 ## Database: Supabase
 

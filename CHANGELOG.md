@@ -2,6 +2,12 @@
 
 What's new in Rota.
 
+## 2026-11-07
+
+- Clearer messages from the bot and the rule checker: "an opener", and dates
+  like "Mon, Nov 9" instead of "2026-11-09".
+- Staff initials no longer get cut off in the Activity feed.
+
 ## 2026-11-06
 
 - Production stays fast after quiet periods: fixed requests that could hang and
