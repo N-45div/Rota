@@ -36,6 +36,13 @@ shift), so "who can cover this shift?" just works. Changes from Telegram or
 the agent show up on the open board within seconds, and the shifts that
 changed glow.
 
+## Demo video
+
+The demo film was made by the coding agent with this repo's
+[`demo-video` skill](.agents/skills/demo-video/SKILL.md): real screen captures
+and real bot messages, cut together with HyperFrames, timed to a voiceover
+script, and published on Clips through its MCP server.
+
 ## Run locally
 
 ```bash
