@@ -6,6 +6,8 @@ cover, swaps) over Telegram while you watch the board.
 
 **Live:** https://rota-n45divs-projects.vercel.app
 
+**Demo (2 min):** https://clips.agent-native.com/share/4eqOYMqZXm50
+
 Built on [Agent-Native](https://github.com/BuilderIO/agent-native) for the
 [Builder.io Agent-Native Hackathon](https://www.builder.io/hackathon): people
 and an agent working on the same roster.
@@ -136,6 +138,9 @@ pnpm agent-native:doctor     # framework guards: access, credentials, migrations
 ```
 
 ## Demo video
+
+**Watch it on Clips:** https://clips.agent-native.com/share/4eqOYMqZXm50
+(1:55, with voiceover, chapters, and transcript).
 
 The demo film was made by the coding agent with this repo's
 [`demo-video` skill](.agents/skills/demo-video/SKILL.md): real screen captures
